@@ -104,21 +104,22 @@
 				<ul class="nav">
 					<li class="nav-header">Main Menu</li>
 					<li><a href="<?= base_url() ?>dashboard"><i class="fa fa-table"></i> <span>Billing</span></a></li>
-					<li><a href="<?= base_url() ?>meja"><i class="fa fa-list"></i> <span>Data Meja Billiard</span></a></li>
-					<li><a href="<?= base_url() ?>paket"><i class="fa fa-list"></i> <span>Data Paket</span></a></li>
-					<li class="has-sub">
-						<a href="javascript:;">
-							<b class="caret pull-right"></b>
-							<i class="fa fa-cube"></i>
-							<span>Makanan & Minuman</span>
-						</a>
-						<ul class="sub-menu">
-							<li><a href="<?= base_url() ?>produk">Data Makanan & Minuman</a></li>
-							<li><a href="<?= base_url() ?>unit">Satuan</a></li>
-						</ul>
-					</li>
-					<li><a href="<?= base_url() ?>laporan"><i class="fa fa-book"></i> <span>Laporan Keuangan</span></a></li>
+					<!-- <li><a href="<?= base_url() ?>penjualan"><i class="fa fa-shopping-cart"></i> <span>Penjualan</span></a></li> -->
 					<?php if ($this->fungsi->user_login()->level_id == 1) { ?>
+						<li><a href="<?= base_url() ?>meja"><i class="fa fa-list"></i> <span>Data Meja Billiard</span></a></li>
+						<li><a href="<?= base_url() ?>paket"><i class="fa fa-list"></i> <span>Data Paket</span></a></li>
+						<li class="has-sub">
+							<a href="javascript:;">
+								<b class="caret pull-right"></b>
+								<i class="fa fa-cube"></i>
+								<span>Makanan & Minuman</span>
+							</a>
+							<ul class="sub-menu">
+								<li><a href="<?= base_url() ?>produk">Data Makanan & Minuman</a></li>
+								<li><a href="<?= base_url() ?>unit">Satuan</a></li>
+							</ul>
+						</li>
+						<li><a href="<?= base_url() ?>laporan"><i class="fa fa-book"></i> <span>Laporan Keuangan</span></a></li>
 						<li class="has-sub">
 							<a href="javascript:;">
 								<b class="caret pull-right"></b>

@@ -72,13 +72,13 @@
 							<?php
 								foreach($meja_list as $i) {
 									?>
-									<div class="meja">
+									<div class="meja" >
 										<div class="card">
 											<div class="card-header">
 												<h3 class="card-title" style="font-weight: bold;"><?= $i->nama_meja ?></h3>
 											</div>
 											<div class="card-body">
-												<table class="table">
+												<table class="table" >
 													<tr>
 														<td><b>Bill</b></td>
 														<td>:</td>

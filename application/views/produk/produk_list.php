@@ -45,15 +45,20 @@
 													?>
 													<tr>
 														<td><?= $no++ ?></td>
-														<td><?php echo $produk->photo ?></td>
+														<td>
+															<?php if ($produk->photo == '' || $produk->photo == null) { ?>
+																<img src="<?= base_url() ?>temp/assets/img/produk/default.png" width="60px" height="auto" />
+															<?php } else { ?>
+																<img src="<?= base_url() ?>temp/assets/img/produk/<?php echo $produk->photo ?>" width="60px" height="auto" />
+															<?php } ?>
+															</a>
+														</td>
 														<td><?php echo $produk->nama_produk ?></td>
 														<td><?php echo $produk->jenis_produk ?></td>
 														<td><?php echo $produk->nama_unit ?></td>
 														<td><?php echo rupiah($produk->harga)  ?></td>
 														<td style="text-align:center" width="200px">
 															<?php
-															echo anchor(site_url('produk/read/' . encrypt_url($produk->produk_id)), '<i class="fa fa-eye" aria-hidden="true"></i>', 'class="btn btn-success btn-sm read_data"');
-															echo '  ';
 															echo anchor(site_url('produk/update/' . encrypt_url($produk->produk_id)), '<i class="fa fa-pencil" aria-hidden="true"></i>', 'class="btn btn-primary btn-sm update_data"');
 															echo '  ';
 															echo anchor(site_url('produk/delete/' . encrypt_url($produk->produk_id)), '<i class="fa fa-trash" aria-hidden="true"></i>', 'class="btn btn-danger btn-sm delete_data" Delete', 'onclick="javasciprt: return confirm(\'Are You Sure ?\')"');
