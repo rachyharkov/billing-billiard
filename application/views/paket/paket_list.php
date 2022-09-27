@@ -39,23 +39,46 @@
 													<th>Action</th>
 												</tr>
 											</thead>
-											<tbody><?php $no = 1;
-													foreach ($paket_data as $paket) {
+											<tbody>
+												<?php $no = 1;
+
+													// length of $paket_data
+													$length = count($paket_data);
 													?>
 													<tr>
-														<td><?= $no++ ?></td>
-														<td><?php echo $paket->nama_paket ?></td>
-														<td><?php echo rupiah($paket->harga)  ?></td>
-														<td><?php echo $paket->menit ?> Menit</td>
-														<td><?php echo $paket->keterangan ?></td>
+														<td>0</td>
+														<td>Loss</td>
+														<td><?= rupiah($paket_data[$length - 1]->harga) ?></td>
+														<td>Per-<?= $paket_data[$length - 1]->menit ?> Menit</td>
+														<td>Seperlunya</td>
 														<td style="text-align:center" width="200px">
 															<?php
-															echo anchor(site_url('paket/update/' . encrypt_url($paket->paket_id)), '<i class="fa fa-pencil" aria-hidden="true"></i>', 'class="btn btn-primary btn-sm update_data"');
-															echo '  ';
-															echo anchor(site_url('paket/delete/' . encrypt_url($paket->paket_id)), '<i class="fa fa-trash" aria-hidden="true"></i>', 'class="btn btn-danger btn-sm delete_data" Delete', 'onclick="javasciprt: return confirm(\'Are You Sure ?\')"');
+															echo anchor(site_url('paket/update/loss'), '<i class="fa fa-pencil" aria-hidden="true"></i>', 'class="btn btn-primary btn-sm update_data"');
 															?>
 														</td>
 													</tr>
+													<?php
+
+													foreach ($paket_data as $paket) {
+														if($paket->paket_id != 0) {
+															?>
+															<tr>
+																<td><?= $no++ ?></td>
+																<td><?php echo $paket->nama_paket ?></td>
+																<td><?php echo rupiah($paket->harga)  ?></td>
+																<td><?php echo $paket->menit ?> Menit</td>
+																<td><?php echo $paket->keterangan ?></td>
+																<td style="text-align:center" width="200px">
+																	<?php
+																	echo anchor(site_url('paket/update/' . encrypt_url($paket->paket_id)), '<i class="fa fa-pencil" aria-hidden="true"></i>', 'class="btn btn-primary btn-sm update_data"');
+																	echo '  ';
+																	echo anchor(site_url('paket/delete/' . encrypt_url($paket->paket_id)), '<i class="fa fa-trash" aria-hidden="true"></i>', 'class="btn btn-danger btn-sm delete_data" Delete', 'onclick="javasciprt: return confirm(\'Are You Sure ?\')"');
+																	?>
+																</td>
+															</tr>
+															<?php
+														}
+													?>
 												<?php } ?>
 											</tbody>
 										</table>
