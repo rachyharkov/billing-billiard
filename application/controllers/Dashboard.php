@@ -14,10 +14,12 @@ class Dashboard extends CI_Controller {
 	public function index()
 	{
 		$this->load->model('Meja_model');
+		$this->load->model('Paket_model');
 		$meja_list = $this->Meja_model->get_all();
-
+		$paket_list = $this->Paket_model->get_all();
 		$data = array(
 			'meja_list' => $meja_list,
+			'paket_list' => $paket_list,
 		);
 
 		$this->template->load('template', 'dashboard', $data);
