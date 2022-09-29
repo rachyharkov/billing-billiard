@@ -59,8 +59,18 @@
 		color: white;
 	}
 
+	.kotag {
+		width: 285px;
+		position: absolute;
+		background: white;
+		border: 1px black solid;
+		padding: 10px;
+	}
 
 </style>
+
+<link href="https://cdn.jsdelivr.net/npm/select2@4.1.0-rc.0/dist/css/select2.min.css" rel="stylesheet" />
+<script src="https://cdn.jsdelivr.net/npm/select2@4.1.0-rc.0/dist/js/select2.min.js"></script>
 
 <div id="content" class="content">
 	<div class="row">
@@ -165,55 +175,57 @@
 									?>
 									<div class="meja <?= $i->in_use == 1 ? 'not-available' : 'available' ?>">
 										<div class="card">
-											<div class="card-header">
-												<h3 class="card-title" style="font-weight: bold;"><?= $i->nama_meja ?></h3>
-											</div>
-											<div class="card-body">
-												<table class="table">
-													<tr>
-														<td><b>Bill</b></td>
-														<td>:</td>
-														<td>-</td>
-													</tr>
-													<tr>
-														<td style="line-height: 3;"><b>Paket</b></td>
-														<td style="line-height: 3;">:</td>
-														<td>
-															<select class="form-control">
-																<option value="">Pilih Paket</option>
-																<?php
-																	foreach($paket_list as $p) {
-																		?>
-																		<option value="<?= $p->paket_id ?>"><?= $p->nama_paket ?></option>
-																		<?php
-																	}
-																?>
-														</td>
-													</tr>
-													<tr>
-														<td><b>Mulai</b></td>
-														<td>:</td>
-														<td>-</td>
-													</tr>
-													<tr>
-														<td><b>Durasi</b></td>
-														<td>:</td>
-														<td>-</td>
-													</tr>
-													<tr>
-														<td><b>Sisa</b></td>
-														<td>:</td>
-														<td>-</td>
-													</tr>
-												</table>
-											</div>
-											<div class="card-footer">
-												<div class="btn-group-flex">
-													<button class="btn btn-start-meja" data-idmeja="<?= $i->meja_id ?>" type="button">Start</button>
-													<!-- <button class="btn" type="button">Order Menu</button>
-													<button class="btn" type="button">Checkout</button> -->
+											<form class="form-meja" data-idmeja="<?= $i->meja_id ?>">
+												<div class="card-header">
+													<h3 class="card-title" style="font-weight: bold;"><?= $i->nama_meja ?></h3>
 												</div>
-											</div>
+												<div class="card-body">
+													<table class="table">
+														<tr>
+															<td><b>Bill</b></td>
+															<td>:</td>
+															<td><span class="bill-id">-</span></td>
+														</tr>
+														<tr>
+															<td style="line-height: 3;"><b>Paket</b></td>
+															<td style="line-height: 3;">:</td>
+															<td>
+																<select class="select-paket" style="width: 100%;">
+																	<?php
+																		foreach($paket_list as $p) {
+																			?>
+																			<option value="<?= $p->paket_id ?>"><?= $p->nama_paket ?></option>
+																			<?php
+																		}
+																	?>
+																</select>
+															</td>
+														</tr>
+														<tr>
+															<td><b>Mulai</b></td>
+															<td>:</td>
+															<td><span class="start-time">-</span></td>
+														</tr>
+														<tr>
+															<td><b>Durasi</b></td>
+															<td>:</td>
+															<td><span class="duration-time">-</span></td>
+														</tr>
+														<tr>
+															<td><b>Sisa</b></td>
+															<td>:</td>
+															<td><span class="left-time">-</span></td>
+														</tr>
+													</table>
+												</div>
+												<div class="card-footer">
+													<div class="btn-group-flex">
+														<button class="btn btn-start-meja" type="submit">Start</button>
+														<!-- <button class="btn" type="button">Order Menu</button>
+														<button class="btn" type="button">Checkout</button> -->
+													</div>
+												</div>
+											</form>
 										</div>
 									</div>
 									<?php
@@ -229,19 +241,50 @@
 
 <script>
 	$(document).ready(function() {
-		$(document).on('click','.btn-start-meja', function() {
+
+		$('.select-paket').select2();
+
+		$(document).on('submit','.form-meja', function(e) {
+
+			e.preventDefault()
+
+			var disform = $(this)
+
+			var bill_id = $(this).find('.bill-id')
+			var start_time = $(this).find('.start-time')
+			var duration_time = $(this).find('.duration-time')
+			var left_time = $(this).find('.left-time')
+
+			// change button to loading state
+			disform.find('.btn-start-meja').html('<i class="fa fa-spinner fa-spin"></i>')
+			disform.find('.btn-start-meja').attr('disabled', true)
+
+
 			var id_meja = $(this).data('idmeja');
-			alert('Meja ' + id_meja + ' telah diaktifkan');
-			// $.ajax({
-			// 	url: '<?= base_url('dashboard/start_meja') ?>',
-			// 	type: 'POST',
-			// 	data: {
-			// 		id_meja: id_meja
-			// 	},
-			// 	success: function(data) {
-			// 		console.log(data);
-			// 	}
-			// });
+			$.ajax({
+				url: '<?= base_url('dashboard/start_billing') ?>',
+				type: 'POST',
+				data: {
+					id_meja: id_meja
+				},
+				success: function(data) {
+					var data = JSON.parse(data);
+					console.log(data)
+					
+					bill_id.html(data.bill_id)
+					start_time.html(data.start_time)
+					duration_time.html(data.duration_time)
+					left_time.html(data.left_time)
+
+					disform.find('.btn-start-meja').html('Start')
+					disform.find('.btn-start-meja').removeAttr('disabled')
+				},
+				error: function() {
+					alert('error');
+					disform.find('.btn-start-meja').html('Start')
+					disform.find('.btn-start-meja').removeAttr('disabled')
+				}
+			});
 		})
 	});
 </script>
