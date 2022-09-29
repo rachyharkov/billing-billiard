@@ -43,20 +43,22 @@
 		width: 100%;
 	}
 
-	.btn-group-flex .btn:nth-child(1) {
+	.btn-group-flex .btn-start-sewa {
 		background-color: #4CAF50;
 		color: white;
 		display: block;
 	}
 
-	.btn-group-flex .btn:nth-child(2) {
+	.btn-group-flex .btn-checkout {
 		background-color: #f44336;
 		color: white;
+		margin: 0 5px;
 	}
 
-	.btn-group-flex .btn:nth-child(3) {
+	.btn-group-flex .btn-order-menu {
 		background-color: #2196F3;
 		color: white;
+		margin: 0 5px;
 	}
 
 	.kotag {
@@ -220,9 +222,7 @@
 												</div>
 												<div class="card-footer">
 													<div class="btn-group-flex">
-														<button class="btn btn-start-meja" type="submit">Start</button>
-														<!-- <button class="btn" type="button">Order Menu</button>
-														<button class="btn" type="button">Checkout</button> -->
+														<button class="btn btn-start-sewa" type="submit">Start</button>
 													</div>
 												</div>
 											</form>
@@ -339,9 +339,10 @@
 					start_time.html(data.start_time)
 					
 					setDurasiAndSisa(index_meja, data.start_time, data.end_time)
-
-					disform.find('.btn-start-meja').html('Finish')
-					disform.find('.btn-start-meja').removeAttr('disabled')
+					disform.find('.btn-group-flex').html(`
+						<button class="btn btn-order-menu" type="button">Order Menu</button>
+						<button class="btn btn-checkout" type="button">Checkout</button>
+					`)
 				},
 				error: function() {
 					alert('error');
