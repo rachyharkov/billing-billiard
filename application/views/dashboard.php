@@ -173,7 +173,7 @@
 							<?php
 								foreach($meja_list as $i) {
 									?>
-									<div class="meja <?= $i->in_use == 1 ? 'not-available' : 'available' ?>">
+									<div id="meja-<?= $i->meja_id ?>" class="meja meja_div <?= $i->in_use == 1 ? 'not-available' : 'available' ?>">
 										<div class="card">
 											<form class="form-meja" data-idmeja="<?= $i->meja_id ?>">
 												<div class="card-header">
@@ -240,6 +240,68 @@
 </div>
 
 <script>
+
+	function durasi(start, end) {
+
+		var start = new Date(start);
+		var end = new Date(end);
+
+		var diff = end - start;
+
+		var days = Math.floor(diff / (1000 * 60 * 60 * 24));
+		var hours = Math.floor((diff % (1000 * 60 * 60 * 24)) / (1000 * 60 * 60));
+		var minutes = Math.floor((diff % (1000 * 60 * 60)) / (1000 * 60));
+		var seconds = Math.floor((diff % (1000 * 60)) / 1000);
+
+		return days + "d " + hours + "h " + minutes + "m " + seconds + "s ";
+	}
+
+	function timeLeft(start, end) {
+
+		var start = new Date(start);
+		var end = new Date(end);
+
+		var diff = end - start;
+
+		var days = Math.floor(diff / (1000 * 60 * 60 * 24));
+		var hours = Math.floor((diff % (1000 * 60 * 60 * 24)) / (1000 * 60 * 60));
+		var minutes = Math.floor((diff % (1000 * 60 * 60)) / (1000 * 60));
+		var seconds = Math.floor((diff % (1000 * 60)) / 1000);
+
+		return hours + "h " + minutes + "m " + seconds + "s ";
+	}
+
+	arrayTimerDurasi = new Array();
+	arrayTimerLeft = new Array();
+	// loop through all meja
+	$('.meja_div').each(function(index, el) {
+		// push null to arrayTimerDurasi
+		arrayTimerDurasi.push(null);
+		// push null to arrayTimerLeft
+		arrayTimerLeft.push(null);
+
+	})
+	
+	function setDurasiAndSisa(index, start, end) {
+		
+		if (arrayTimerDurasi[index] != null) {
+			clearInterval(arrayTimerDurasi[index]);
+		}
+		if (arrayTimerLeft[index] != null) {
+			clearInterval(arrayTimerLeft[index]);
+		}
+		
+		arrayTimerDurasi[index] = setInterval(function() {
+			$('.meja_div').eq(index).find('.duration-time').text(durasi(start, new Date()));
+		}, 1000);
+
+		arrayTimerLeft[index] = setInterval(function() {
+			$('.meja_div').eq(index).find('.left-time').text(timeLeft(new Date(), end));
+		}, 1000);
+
+		// console.log(arrayTimer)
+	}
+
 	$(document).ready(function() {
 
 		$('.select-paket').select2();
@@ -247,13 +309,11 @@
 		$(document).on('submit','.form-meja', function(e) {
 
 			e.preventDefault()
-
+			
 			var disform = $(this)
 
 			var bill_id = $(this).find('.bill-id')
 			var start_time = $(this).find('.start-time')
-			var duration_time = $(this).find('.duration-time')
-			var left_time = $(this).find('.left-time')
 
 			// change button to loading state
 			disform.find('.btn-start-meja').html('<i class="fa fa-spinner fa-spin"></i>')
@@ -261,6 +321,10 @@
 
 
 			var id_meja = $(this).data('idmeja');
+
+			var index_meja = $('.meja_div').index($(this).closest('.meja_div'));
+			console.log(index_meja)
+
 			$.ajax({
 				url: '<?= base_url('dashboard/start_billing') ?>',
 				type: 'POST',
@@ -273,10 +337,10 @@
 					
 					bill_id.html(data.bill_id)
 					start_time.html(data.start_time)
-					duration_time.html(data.duration_time)
-					left_time.html(data.left_time)
+					
+					setDurasiAndSisa(index_meja, data.start_time, data.end_time)
 
-					disform.find('.btn-start-meja').html('Start')
+					disform.find('.btn-start-meja').html('Finish')
 					disform.find('.btn-start-meja').removeAttr('disabled')
 				},
 				error: function() {
