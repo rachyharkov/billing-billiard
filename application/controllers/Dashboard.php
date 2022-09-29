@@ -9,12 +9,12 @@ class Dashboard extends CI_Controller {
         parent::__construct();
         is_login();
 		// check_admin();
+		$this->load->model('Meja_model');
+		$this->load->model('Paket_model');
     }
 
 	public function index()
 	{
-		$this->load->model('Meja_model');
-		$this->load->model('Paket_model');
 		$meja_list = $this->Meja_model->get_all();
 		$paket_list = $this->Paket_model->get_all();
 		$data = array(
@@ -29,9 +29,11 @@ class Dashboard extends CI_Controller {
 		$id_meja = $this->input->post('id_meja');
 		$paket_choice = $this->input->post('paket_choice');
 
-		$total_jam_tambah = '60 Minutes';
+		$getmenitbypaketchoice = $this->Paket_model->get_by_id($paket_choice)->menit;
 
-		$start_main = '2022-09-29 19:32:00';
+		$total_jam_tambah = $getmenitbypaketchoice.' Minutes';
+
+		$start_main = date('Y-m-d H:i:s');
 
 		$end_main = date('Y-m-d H:i:s', strtotime($start_main . ' + ' . $total_jam_tambah));
 
