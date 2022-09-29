@@ -33,3 +33,13 @@ function rupiah($angka){
     return $hasil_rupiah;
 }
 
+function generateBillingId() {
+	$ci = &get_instance();
+	$ci->load->model('Transaksi_model');
+	$last_id = $ci->Transaksi_model->get_last_id();
+	$last_id = $last_id->transaction_id;
+	$last_id = $last_id + 1;
+	$billing_id = $last_id . date('Ymd');
+	return $billing_id;
+}
+

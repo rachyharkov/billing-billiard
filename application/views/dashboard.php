@@ -329,7 +329,8 @@
 				url: '<?= base_url('dashboard/start_billing') ?>',
 				type: 'POST',
 				data: {
-					id_meja: id_meja
+					id_meja: id_meja,
+					paket_choice: disform.find('.select-paket').val()
 				},
 				success: function(data) {
 					var data = JSON.parse(data);

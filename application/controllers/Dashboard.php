@@ -27,8 +27,9 @@ class Dashboard extends CI_Controller {
 
 	public function start_billing() {
 		$id_meja = $this->input->post('id_meja');
+		$paket_choice = $this->input->post('paket_choice');
 
-		$total_jam_tambah = '5 Hours';
+		$total_jam_tambah = '60 Minutes';
 
 		$start_main = '2022-09-29 19:32:00';
 
@@ -53,10 +54,25 @@ class Dashboard extends CI_Controller {
 
 		$time_left = floor($total_hours_left) . ' Jam ' . floor($total_minutes_left) . ' Menit ' . floor($total_seconds_left) . ' Detik';
 
+		$this->load->helper('fungsi');
+		$arr_data_transaksi = array(
+			'billing_id' => generateBillingId(),
+			'paket' => $paket_choice,
+			'start' => $start_main,
+			'durasi' => $durasi_total,
+			'meja_id' => $id_meja,
+			'billiard_play_price' => 50000,
+			'additional_item' => json_encode(array()),
+			'grand_total' => 50000,
+			'payment_status' => 0
+		);
+
+		$this->load->model('Transaksi_model');
+		$this->Transaksi_model->insert($arr_data_transaksi);
 
 		$arr = array(
-			'bill_id' => rand(100000, 999999),
-			'start_time' => '2022-09-29 16:00:00',
+			'bill_id' => $arr_data_transaksi['billing_id'],
+			'start_time' => $start_main,
 			'duration' => $durasi_total,
 			'left_time' => $time_left,
 			'end_time' => $end_main,
