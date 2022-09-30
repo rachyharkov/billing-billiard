@@ -40,17 +40,29 @@
 												</tr>
 											</thead>
 											<tbody>
-												<?php $no = 1;
+												<?php $no = 2;
 
 													// length of $paket_data
 													$length = count($paket_data);
 													?>
 													<tr>
 														<td>0</td>
-														<td>Loss</td>
+														<td><?= $paket_data[$length - 1]->nama_paket ?></td>
 														<td><?= rupiah($paket_data[$length - 1]->harga) ?></td>
 														<td>Per-<?= $paket_data[$length - 1]->menit ?> Menit</td>
-														<td>Seperlunya</td>
+														<td><?= $paket_data[$length - 1]->keterangan ?></td>
+														<td style="text-align:center" width="200px">
+															<?php
+															echo anchor(site_url('paket/update/loss'), '<i class="fa fa-pencil" aria-hidden="true"></i>', 'class="btn btn-primary btn-sm update_data"');
+															?>
+														</td>
+													</tr>
+													<tr>
+														<td>1</td>
+														<td><?= $paket_data[$length - 1]->nama_paket ?></td>
+														<td><?= rupiah($paket_data[$length - 2]->harga) ?></td>
+														<td>Per-<?= $paket_data[$length - 2]->menit ?> Menit</td>
+														<td><?= $paket_data[$length - 2]->keterangan ?></td>
 														<td style="text-align:center" width="200px">
 															<?php
 															echo anchor(site_url('paket/update/loss'), '<i class="fa fa-pencil" aria-hidden="true"></i>', 'class="btn btn-primary btn-sm update_data"');

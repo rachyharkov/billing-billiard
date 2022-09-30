@@ -73,9 +73,9 @@ class Meja extends CI_Controller
             $data = array(
                 'button' => 'Update',
                 'action' => site_url('meja/update_action'),
-		'meja_id' => set_value('meja_id', $row->meja_id),
-		'nama_meja' => set_value('nama_meja', $row->nama_meja),
-	    );
+                'meja_id' => set_value('meja_id', $row->meja_id),
+                'nama_meja' => set_value('nama_meja', $row->nama_meja),
+	        );
             $this->template->load('template','meja/meja_form', $data);
         } else {
             $this->session->set_flashdata('message', 'Record Not Found');
@@ -116,10 +116,76 @@ class Meja extends CI_Controller
 
     public function _rules() 
     {
-	$this->form_validation->set_rules('nama_meja', 'nama meja', 'trim|required');
+        $this->form_validation->set_rules('nama_meja', 'nama meja', 'trim|required');
 
-	$this->form_validation->set_rules('meja_id', 'meja_id', 'trim');
-	$this->form_validation->set_error_delimiters('<span class="text-danger">', '</span>');
+        $this->form_validation->set_rules('meja_id', 'meja_id', 'trim');
+        $this->form_validation->set_error_delimiters('<span class="text-danger">', '</span>');
+    }
+
+    public function getMejaStatusTimer() {
+        $datany = $this->Meja_model->getMejaStatusTimer();
+
+        $arrtime = [];
+
+        if(count($datany) > 0) {
+            foreach ($datany as $key => $value) {
+                $this->load->model('Paket_model');
+                $this->load->model('Transaksi_model');
+    
+                $getdatabilling = $this->Transaksi_model->get_by_billing_id($value->billing_id);
+    
+                $getpaketlistinbilling = json_decode($getdatabilling->paket);
+    
+                $paket = $this->Paket_model->get_by_id(end($getpaketlistinbilling));
+    
+                $minutestoadd = $paket->menit. ' Minutes';
+    
+                $start_main = $getdatabilling->start;
+    
+                $end_main = date('Y-m-d H:i:s', strtotime($start_main . ' + '.$minutestoadd));
+    
+                $arrtime[$key] = array(
+                    'bill_id' => $getdatabilling->billing_id,
+                    'start_time' => $getdatabilling->start,
+                    'end_time' => date('Y-m-d H:i:s', strtotime($getdatabilling->start.' + '. $minutestoadd)),
+                    'meja_id' => $value->meja_id,
+                    'paket_id' => $paket->paket_id,
+                );
+            }
+        }
+
+        echo json_encode($arrtime);
+    }
+
+    public function checkout() {
+        
+        $meja_id = $this->input->post('meja_id');
+        $getdatameja = $this->Meja_model->get_by_id($meja_id);
+
+        $this->load->model('Transaksi_model');
+
+        $databilling = $this->Transaksi_model->get_by_billing_id($getdatameja->billing_id);
+        
+        $updatebilling = array(
+            'payment_status' => 1,
+        );
+
+        
+        $updatemeja = array(
+            'in_use' => 0,
+            'billing_id' => null,
+        );
+        
+        $this->Transaksi_model->update_by_billing_id($databilling->billing_id, $updatebilling);
+        $this->Meja_model->update($meja_id, $updatemeja);
+
+        $arrjson = array(
+            'status' => 'success',
+            'billing_id' => $databilling->billing_id,
+            'meja_id' => $getdatameja->meja_id,
+        );
+
+        echo json_encode($arrjson);
     }
 
 }

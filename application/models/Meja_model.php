@@ -18,7 +18,7 @@ class Meja_model extends CI_Model
     // get all
     function get_all()
     {
-        $this->db->order_by($this->id, $this->order);
+        $this->db->order_by($this->id, 'ASC');
         return $this->db->get($this->table)->result();
     }
 
@@ -58,4 +58,12 @@ class Meja_model extends CI_Model
         $this->db->delete($this->table);
     }
 
+    function getMejaStatusTimer() {
+        $this->db->select('*');
+        $this->db->from('meja');
+        $this->db->where('in_use', 1);
+        $this->db->order_by('meja_id', 'ASC');
+        $query = $this->db->get();
+        return $query->result();
+    }
 }
