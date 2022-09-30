@@ -45,12 +45,14 @@ class Paket extends CI_Controller
         $data = array(
             'button' => 'Create',
             'action' => site_url('paket/create_action'),
-	    'paket_id' => set_value('paket_id'),
-	    'nama_paket' => set_value('nama_paket'),
-	    'harga' => set_value('harga'),
-	    'menit' => set_value('menit'),
-	    'keterangan' => set_value('keterangan'),
-	);
+            'jenis_paket' => 'custom',
+            'paket_id' => set_value('paket_id'),
+            'nama_paket' => set_value('nama_paket'),
+            'harga' => set_value('harga'),
+            'menit' => set_value('menit'),
+            'keterangan' => set_value('keterangan'),
+	    );
+
         $this->template->load('template','paket/paket_form', $data);
     }
     
@@ -62,11 +64,11 @@ class Paket extends CI_Controller
             $this->create();
         } else {
             $data = array(
-		'nama_paket' => $this->input->post('nama_paket',TRUE),
-		'harga' => $this->input->post('harga',TRUE),
-		'menit' => $this->input->post('menit',TRUE),
-		'keterangan' => $this->input->post('keterangan',TRUE),
-	    );
+                'nama_paket' => $this->input->post('nama_paket',TRUE),
+                'harga' => $this->input->post('harga',TRUE),
+                'menit' => $this->input->post('menit',TRUE),
+                'keterangan' => $this->input->post('keterangan',TRUE),
+	        );
 
             $this->Paket_model->insert($data);
             $this->session->set_flashdata('message', 'Create Record Success');

@@ -127,22 +127,31 @@ class Meja extends CI_Controller
 
         $arrtime = [];
 
-        foreach ($datany as $key => $value) {
-            $this->load->model('Paket_model');
-            $this->load->model('Transaksi_model');
-
-            $getdatabilling = $this->Transaksi_model->get_by_billing_id($value->billing_id);
-
-            $jumlahmenitinpaket = $this->Paket_model->get_by_id($getdatabilling->paket)->menit;
-
-            $minutestoadd = $jumlahmenitinpaket. ' Minutes';
-
-            $arrtime[$key] = array(
-                'bill_id' => $getdatabilling->billing_id,
-                'start_time' => $getdatabilling->start,
-                'end_time' => date('Y-m-d H:i:s', strtotime($getdatabilling->start.' + '. $minutestoadd)),
-                'meja_id' => $value->meja_id,
-            );
+        if(count($datany) > 0) {
+            foreach ($datany as $key => $value) {
+                $this->load->model('Paket_model');
+                $this->load->model('Transaksi_model');
+    
+                $getdatabilling = $this->Transaksi_model->get_by_billing_id($value->billing_id);
+    
+                $getpaketlistinbilling = json_decode($getdatabilling->paket);
+    
+                $paket = $this->Paket_model->get_by_id(end($getpaketlistinbilling));
+    
+                $minutestoadd = $paket->menit. ' Minutes';
+    
+                $start_main = $getdatabilling->start;
+    
+                $end_main = date('Y-m-d H:i:s', strtotime($start_main . ' + '.$minutestoadd));
+    
+                $arrtime[$key] = array(
+                    'bill_id' => $getdatabilling->billing_id,
+                    'start_time' => $getdatabilling->start,
+                    'end_time' => date('Y-m-d H:i:s', strtotime($getdatabilling->start.' + '. $minutestoadd)),
+                    'meja_id' => $value->meja_id,
+                    'paket_id' => $paket->paket_id,
+                );
+            }
         }
 
         echo json_encode($arrtime);

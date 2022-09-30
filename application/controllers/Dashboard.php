@@ -28,67 +28,74 @@ class Dashboard extends CI_Controller {
 	public function start_billing() {
 		$id_meja = $this->input->post('id_meja');
 		$paket_choice = $this->input->post('paket_choice');
+		$billing_id = $this->input->post('billing_id');
+		$action = $this->input->post('action');
 
-		$getmenitbypaketchoice = $this->Paket_model->get_by_id($paket_choice)->menit;
+		if($action == 'nambah') {
+			$getstartmain = $this->Meja_model->get_by_id($id_meja);
+		}
 
-		$total_jam_tambah = $getmenitbypaketchoice.' Minutes';
+		if($action == 'baru') {
+			$getmenitbypaketchoice = $this->Paket_model->get_by_id($paket_choice)->menit;
 
-		$start_main = date('Y-m-d H:i:s');
+			$total_jam_tambah = $getmenitbypaketchoice.' Minutes';
 
-		$end_main = date('Y-m-d H:i:s', strtotime($start_main . ' + ' . $total_jam_tambah));
+			$start_main = date('Y-m-d H:i:s');
 
-		$total_hours = (strtotime($end_main) - strtotime($start_main)) / 3600;
-		$total_minutes = ($total_hours - floor($total_hours)) * 60;
-		$total_seconds = ($total_minutes - floor($total_minutes)) * 60;
+			$end_main = date('Y-m-d H:i:s', strtotime($start_main . ' + ' . $total_jam_tambah));
 
-		$datenow = date('Y-m-d H:i:s');
+			$total_hours = (strtotime($end_main) - strtotime($start_main)) / 3600;
+			$total_minutes = ($total_hours - floor($total_hours)) * 60;
+			$total_seconds = ($total_minutes - floor($total_minutes)) * 60;
 
-		$total_hours_until_now = (strtotime($datenow) - strtotime($start_main)) / 3600;
-		$total_minutes_until_now = ($total_hours_until_now - floor($total_hours_until_now)) * 60;
-		$total_seconds_until_now = ($total_minutes_until_now - floor($total_minutes_until_now)) * 60;
+			$datenow = date('Y-m-d H:i:s');
 
-		// get duration of billing
-		$durasi_total = floor($total_hours_until_now) . ' Jam ' . floor($total_minutes_until_now) . ' Menit ' . floor($total_seconds_until_now) . ' Detik';
-		
-		$total_hours_left = (strtotime($end_main) - strtotime($datenow)) / 3600;
-		$total_minutes_left = ($total_hours_left - floor($total_hours_left)) * 60;
-		$total_seconds_left = ($total_minutes_left - floor($total_minutes_left)) * 60;
+			$total_hours_until_now = (strtotime($datenow) - strtotime($start_main)) / 3600;
+			$total_minutes_until_now = ($total_hours_until_now - floor($total_hours_until_now)) * 60;
+			$total_seconds_until_now = ($total_minutes_until_now - floor($total_minutes_until_now)) * 60;
 
-		$time_left = floor($total_hours_left) . ' Jam ' . floor($total_minutes_left) . ' Menit ' . floor($total_seconds_left) . ' Detik';
+			// get duration of billing
+			// $durasi_total = floor($total_hours_until_now) . ' Jam ' . floor($total_minutes_until_now) . ' Menit ' . floor($total_seconds_until_now) . ' Detik';
+			
+			$total_hours_left = (strtotime($end_main) - strtotime($datenow)) / 3600;
+			$total_minutes_left = ($total_hours_left - floor($total_hours_left)) * 60;
+			$total_seconds_left = ($total_minutes_left - floor($total_minutes_left)) * 60;
 
-		$this->load->helper('fungsi');
-		$arr_data_transaksi = array(
-			'billing_id' => generateBillingId(),
-			'paket' => $paket_choice,
-			'start' => $start_main,
-			'durasi' => $durasi_total,
-			'meja_id' => $id_meja,
-			'billiard_play_price' => 50000,
-			'additional_item' => json_encode(array()),
-			'grand_total' => 50000,
-			'payment_status' => 0
-		);
+			$time_left = floor($total_hours_left) . ' Jam ' . floor($total_minutes_left) . ' Menit ' . floor($total_seconds_left) . ' Detik';
 
-		$this->load->model('Transaksi_model');
-		$this->Transaksi_model->insert($arr_data_transaksi);
+			$this->load->helper('fungsi');
+			$arr_data_transaksi = array(
+				'billing_id' => generateBillingId(),
+				'paket' => json_encode([$paket_choice]),
+				'start' => $start_main,
+				'end' => $end_main,
+				'meja_id' => $id_meja,
+				'billiard_play_price' => 50000,
+				'additional_item' => json_encode(array()),
+				'grand_total' => 50000,
+				'payment_status' => 0
+			);
 
-		$update_datameja = array(
-			'in_use' => 1,
-			'billing_id' => $arr_data_transaksi['billing_id'],
-		);
-		$this->load->model('Meja_model');
-		$this->Meja_model->update($id_meja, $update_datameja);
+			$this->load->model('Transaksi_model');
+			$this->Transaksi_model->insert($arr_data_transaksi);
 
-		$arr = array(
-			'bill_id' => $arr_data_transaksi['billing_id'],
-			'start_time' => $start_main,
-			'duration' => $durasi_total,
-			'left_time' => $time_left,
-			'end_time' => $end_main,
-			'status' => '1',
-		);
+			$update_datameja = array(
+				'in_use' => 1,
+				'billing_id' => $arr_data_transaksi['billing_id'],
+			);
+			$this->load->model('Meja_model');
+			$this->Meja_model->update($id_meja, $update_datameja);
 
-		echo json_encode($arr);
+			$arr = array(
+				'bill_id' => $arr_data_transaksi['billing_id'],
+				'start_time' => $start_main,
+				'left_time' => $time_left,
+				'end_time' => $end_main,
+				'status' => '1',
+			);
+
+			echo json_encode($arr);
+		}
 	}
 
 }

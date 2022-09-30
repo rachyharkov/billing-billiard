@@ -43,6 +43,10 @@
 		box-shadow: rgb(26 177 58 / 20%) 0px 7px 29px 0px;
 	}
 
+	.pending {
+		box-shadow: rgb(255 193 7 / 20%) 0px 7px 29px 0px;
+	}
+
 	.not-available {
 		box-shadow: rgb(177 26 26 / 20%) 0px 7px 29px 0px;
 	}
@@ -53,6 +57,7 @@
 		text-align: center;
 		display: flex;
 		justify-content: space-between;
+		gap: 2px;
 	}
 	.btn-group-flex .btn {
 		height: 50px;
@@ -66,16 +71,20 @@
 		display: block;
 	}
 
+	.btn-group-flex .btn-tambah-billing {
+		background-color: #4CAF50;
+		color: white;
+		display: block;
+	}
+
 	.btn-group-flex .btn-checkout {
 		background-color: #f44336;
 		color: white;
-		margin: 0 5px;
 	}
 
 	.btn-group-flex .btn-order-menu {
 		background-color: #2196F3;
 		color: white;
-		margin: 0 5px;
 	}
 
 	.kotag {
@@ -192,7 +201,7 @@
 							<?php
 								foreach($meja_list as $i) {
 									?>
-									<div id="meja-<?= $i->meja_id ?>" class="meja meja_div <?= $i->in_use == 1 ? 'not-available' : 'available' ?>">
+									<div id="meja-<?= $i->meja_id ?>" class="meja meja_div <?= $i->in_use ? '' : 'available' ?>">
 										<div class="loading-state-meja">
 											<div class="loading-state-meja-inner">
 												<i class="fa fa-spinner fa-spin"></i>
@@ -218,7 +227,7 @@
 																	<?php
 																		foreach($paket_list as $p) {
 																			?>
-																			<option value="<?= $p->paket_id ?>"><?= $p->nama_paket ?></option>
+																			<option value="<?= $p->paket_id ?>" ><?= $p->nama_paket ?></option>
 																			<?php
 																		}
 																	?>
@@ -261,6 +270,32 @@
 	</div>
 </div>
 
+<!-- create modal tambah-billing -->
+<div class="modal fade" id="modal-tambah-billing" tabindex="-1" role="dialog" aria-labelledby="modal-tambah-billing" aria-hidden="true">
+	<div class="modal-dialog modal-dialog-centered" role="document">
+		<div class="modal-content">
+			<div class="modal-header">
+				<h5 class="modal-title" id="modal-tambah-billing">Tambah Billing</h5>
+				<button type="button" class="close" data-dismiss="modal" aria-label="Close">
+					<span aria-hidden="true">&times;</span>
+				</button>
+			</div>
+			<div class="modal-body">
+				<form id="form-tambah-billing">
+					<div class="form-group">
+						<label for="nama-pelanggan">Nama Pelanggan</label>
+						<input type="text" class="form-control" id="nama-pelanggan" name="nama_pelanggan" placeholder="Nama Pelanggan">
+					</div>
+					<div class="form-group">
+						<label for="no-telp">No. Telp</label>
+						<input type="text" class="form-control" id="no-telp" name="no_telp" placeholder="No. Telp">
+					</div>
+				</form>
+			</div>
+		</div>
+	</div>
+</div>
+
 <script>
 
 	function durasi(start, end) {
@@ -275,7 +310,19 @@
 		var minutes = Math.floor((diff % (1000 * 60 * 60)) / (1000 * 60));
 		var seconds = Math.floor((diff % (1000 * 60)) / 1000);
 
-		return days + "d " + hours + "h " + minutes + "m " + seconds + "s ";
+		return hours + " Jam " + minutes + " Menit " + seconds + " Detik";
+	}
+
+	function totalSeconds(start, end) {
+		
+		var start = new Date(start);
+		var end = new Date(end);
+
+		var diff = end - start;
+
+		var total_seconds = Math.floor(diff / 1000);
+
+		return total_seconds;
 	}
 
 	function timeLeft(start, end) {
@@ -289,8 +336,9 @@
 		var hours = Math.floor((diff % (1000 * 60 * 60 * 24)) / (1000 * 60 * 60));
 		var minutes = Math.floor((diff % (1000 * 60 * 60)) / (1000 * 60));
 		var seconds = Math.floor((diff % (1000 * 60)) / 1000);
+		var total_seconds = Math.floor(diff / 1000);
 
-		return hours + "h " + minutes + "m " + seconds + "s ";
+		return hours + " Jam " + minutes + " Menit " + seconds + " Detik";
 	}
 
 	function hideLoadingState() {
@@ -328,16 +376,40 @@
 		if (arrayTimerLeft[index] != null) {
 			clearInterval(arrayTimerLeft[index]);
 		}
-		
-		arrayTimerDurasi[index] = setInterval(function() {
-			$('.meja_div').eq(meja_id).find('.duration-time').text(durasi(start, new Date()));
-		}, 1000);
 
-		arrayTimerLeft[index] = setInterval(function() {
-			$('.meja_div').eq(meja_id).find('.left-time').text(timeLeft(new Date(), end));
-		}, 1000);
+		var mejaDiv = $('.meja_div').eq(meja_id);
+		var totalseconds = totalSeconds(new Date(), end)
 
-		// console.log(arrayTimer)
+		if(totalseconds <= 0) {
+			alert('ADA YANG ABIS! Meja : ' + mejaDiv.find('.card-title').text())
+			mejaDiv.addClass('pending');
+
+			durasimaenterakhir = durasi(start, end)
+
+			mejaDiv.find('.duration-time').text(durasimaenterakhir);
+			mejaDiv.find('.left-time').text(0 + ' jam ' + 0 + ' menit ' + 0 + ' detik');
+			mejaDiv.find('.btn-group-flex').html(`
+				<button class="btn btn-tambah-billing" type="button">Tambah</button>
+				<button class="btn btn-order-menu" type="button">Order Menu</button>
+				<button class="btn btn-checkout" type="button">Checkout</button>
+			`)
+		} else {
+			mejaDiv.removeClass('pending');
+			mejaDiv.addClass('not-available')
+			arrayTimerDurasi[index] = setInterval(function() {
+				mejaDiv.find('.duration-time').text(durasi(start, new Date()));
+			}, 1000);
+
+			arrayTimerLeft[index] = setInterval(function() {
+				mejaDiv.find('.left-time').text(timeLeft(new Date(), end));
+			}, 1000);
+
+			mejaDiv.find('.btn-group-flex').html(`
+				<button class="btn btn-tambah-billing" type="button">Tambah</button>
+				<button class="btn btn-order-menu" type="button">Order Menu</button>
+				<button class="btn btn-checkout" type="button">Checkout</button>
+			`)
+		}
 	}
 
 	function getMejaStatusTimer() {
@@ -352,15 +424,12 @@
 				$.each(dt, function(index, val) {
 					// console.log(val)
 					// set durasi and sisa
+					var mejaDiv = $('#meja-' + val.meja_id);
 					setDurasiAndSisa(index, val.start_time, val.end_time, val.meja_id - 1);
 					
 					// find meja div index
-					var mejaDiv = $('#meja-' + val.meja_id);
-					
-					mejaDiv.find('.btn-group-flex').html(`
-						<button class="btn btn-order-menu" type="button">Order Menu</button>
-						<button class="btn btn-checkout" type="button">Checkout</button>
-					`)
+
+					mejaDiv.find('.select-paket').val(val.paket_id).trigger('change');
 
 					mejaDiv.find('.select-paket').prop('disabled', true);
 
@@ -377,6 +446,24 @@
 		getMejaStatusTimer()
 
 		$('.select-paket').select2();
+
+		$(document).on('click', '.btn-checkout', function(e) {
+			var mejadiv = $(this).parents('.meja_div');
+			var meja_id = mejadiv.find('.card-title').text();
+			alert('This button belongs to ' + meja_id);
+		})
+
+		$(document).on('click', '.btn-order-menu', function(e) {
+			var mejadiv = $(this).parents('.meja_div');
+			var meja_id = mejadiv.find('.card-title').text();
+			alert('This button belongs to ' + meja_id);
+		})
+
+		$(document).on('click', '.btn-tambah-billing', function(e) {
+			var mejadiv = $(this).parents('.meja_div');
+			var meja_id = mejadiv.find('.card-title').text();
+			alert('This button belongs to ' + meja_id);
+		})
 
 		$(document).on('submit','.form-meja', function(e) {
 
@@ -404,7 +491,8 @@
 				type: 'POST',
 				data: {
 					id_meja: id_meja,
-					paket_choice: disform.find('.select-paket').val()
+					paket_choice: disform.find('.select-paket').val(),
+					action: 'baru'
 				},
 				success: function(data) {
 					var data = JSON.parse(data);
