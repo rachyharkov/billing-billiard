@@ -157,6 +157,37 @@ class Meja extends CI_Controller
         echo json_encode($arrtime);
     }
 
+    public function checkout() {
+        
+        $meja_id = $this->input->post('meja_id');
+        $getdatameja = $this->Meja_model->get_by_id($meja_id);
+
+        $this->load->model('Transaksi_model');
+
+        $databilling = $this->Transaksi_model->get_by_billing_id($getdatameja->billing_id);
+        
+        $updatebilling = array(
+            'payment_status' => 1,
+        );
+
+        
+        $updatemeja = array(
+            'in_use' => 0,
+            'billing_id' => null,
+        );
+        
+        $this->Transaksi_model->update_by_billing_id($databilling->billing_id, $updatebilling);
+        $this->Meja_model->update($meja_id, $updatemeja);
+
+        $arrjson = array(
+            'status' => 'success',
+            'billing_id' => $databilling->billing_id,
+            'meja_id' => $getdatameja->meja_id,
+        );
+
+        echo json_encode($arrjson);
+    }
+
 }
 
 /* End of file Meja.php */

@@ -44,11 +44,11 @@
 	}
 
 	.pending {
-		box-shadow: rgb(255 193 7 / 20%) 0px 7px 29px 0px;
-	}
-
-	.not-available {
 		box-shadow: rgb(177 26 26 / 20%) 0px 7px 29px 0px;
+	}
+	
+	.not-available {
+		box-shadow: rgb(255 193 7 / 20%) 0px 7px 29px 0px;
 	}
 
 	.btn-group-flex {
@@ -347,13 +347,13 @@
 	}
 
 	function hideSpecifiedLoadingState(id) {
-		$('#meja' + id + ' .loading-state-meja').hide();
-		$('#meja' + id + ' .btn-group-flex .btn').css('visibility', 'visible');
+		$('#meja-' + id + ' .loading-state-meja').hide();
+		$('#meja-' + id + ' .btn-group-flex .btn').css('visibility', 'visible');
 	}
 
 	function showSpecifiedLoadingState(id) {
-		$('#meja' + id + ' .loading-state-meja').show();
-		$('#meja' + id + ' .btn-group-flex .btn').css('visibility', 'hidden');
+		$('#meja-' + id + ' .loading-state-meja').show();
+		$('#meja-' + id + ' .btn-group-flex .btn').css('visibility', 'hidden');
 	}
 
 	arrayTimerDurasi = new Array();
@@ -365,6 +365,11 @@
 		// push null to arrayTimerLeft
 		arrayTimerLeft.push(null);
 	})
+
+	function removeInterval(id) {
+		clearInterval(arrayTimerDurasi[id]);
+		clearInterval(arrayTimerLeft[id]);
+	}
 	
 	function setDurasiAndSisa(index, start, end, meja_id = null) {
 
@@ -449,8 +454,79 @@
 
 		$(document).on('click', '.btn-checkout', function(e) {
 			var mejadiv = $(this).parents('.meja_div');
-			var meja_id = mejadiv.find('.card-title').text();
-			alert('This button belongs to ' + meja_id);
+			var meja_id = mejadiv.find('.form-meja').data('idmeja');
+			
+			// sweetalert confirm checkout
+			Swal.fire({
+				title: 'Checkout Meja ' + meja_id + '?',
+				text: "Pastikan semua beres",
+				type: 'warning',
+				showCancelButton: true,
+				confirmButtonColor: '#3085d6',
+				cancelButtonColor: '#d33',
+				confirmButtonText: 'Ya, checkout!'
+			}).then((result) => {
+				if (result.value) {
+					// show loading state
+					showSpecifiedLoadingState(meja_id);
+					// ajax checkout
+					$.ajax({
+						url: '<?= base_url('meja/checkout') ?>',
+						type: 'POST',
+						data: {
+							meja_id: meja_id
+						},
+						success: function(data) {
+							// console.log(data)
+							var dt = JSON.parse(data)
+
+							// open new tab to print
+							var win = window.open('<?= base_url('billing/print/') ?>' + dt.bill_id, '_blank');
+							win.focus();
+
+							if (dt.status == 'success') {
+								// hide loading state
+								hideSpecifiedLoadingState(meja_id);
+								// sweetalert success
+								Swal.fire(
+									'Success!',
+									'Checkout meja ' + meja_id + ' berhasil!',
+									'success'
+								)
+								// remove class not available
+								mejadiv.removeClass('not-available');
+								// remove class pending
+								mejadiv.removeClass('pending');
+								// set durasi and sisa
+								removeInterval(meja_id - 1);
+								// set select paket to default
+								mejadiv.find('.select-paket').val(null).trigger('change');
+								// set select paket to not disabled
+								mejadiv.find('.select-paket').prop('disabled', false);
+								// set bill id to empty
+								mejadiv.find('.bill-id').html('-')
+								// set start time to empty
+								mejadiv.find('.start-time').html('-')
+								mejadiv.find('.duration-time').text('-');
+								mejadiv.find('.left-time').text('-');
+								mejadiv.find('.btn-group-flex').html(`
+									<button class="btn btn-start-sewa" type="submit">Start</button>
+								`)
+								mejadiv.find('.btn-group-flex .btn').css('visibility', 'visible');
+							} else {
+								// hide loading state
+								hideSpecifiedLoadingState(meja_id);
+								// sweetalert error
+								Swal.fire(
+									'Error!',
+									'Checkout meja ' + meja_id + ' gagal!',
+									'error'
+								)
+							}
+						}
+					});
+				}
+			})
 		})
 
 		$(document).on('click', '.btn-order-menu', function(e) {
@@ -463,6 +539,9 @@
 			var mejadiv = $(this).parents('.meja_div');
 			var meja_id = mejadiv.find('.card-title').text();
 			alert('This button belongs to ' + meja_id);
+
+			// show modal tambah billing
+			$('#modal-tambah-billing').modal('show');
 		})
 
 		$(document).on('submit','.form-meja', function(e) {

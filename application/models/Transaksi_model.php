@@ -27,6 +27,12 @@ class Transaksi_model extends CI_Model
         $this->db->insert($this->table, $data);
     }
 
+    function update_by_billing_id($id, $data)
+    {
+        $this->db->where('billing_id', $id);
+        $this->db->update($this->table, $data);
+    }
+
     function get_by_billing_id($id)
     {
         $this->db->where('billing_id', $id);
