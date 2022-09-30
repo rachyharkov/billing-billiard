@@ -72,6 +72,13 @@ class Dashboard extends CI_Controller {
 		$this->load->model('Transaksi_model');
 		$this->Transaksi_model->insert($arr_data_transaksi);
 
+		$update_datameja = array(
+			'in_use' => 1,
+			'billing_id' => $arr_data_transaksi['billing_id'],
+		);
+		$this->load->model('Meja_model');
+		$this->Meja_model->update($id_meja, $update_datameja);
+
 		$arr = array(
 			'bill_id' => $arr_data_transaksi['billing_id'],
 			'start_time' => $start_main,

@@ -10,6 +10,22 @@
 	.wrapper-list-meja .meja {
 		width: 300px;
 		margin: 10px;
+		position: relative;
+	}
+
+	.wrapper-list-meja .meja .loading-state-meja {
+		position: absolute;
+		top: 0;
+		width: 100%;
+		display: flex;
+		margin: auto;
+		height: 100%;
+		background: #ffffffa6;
+		font-size: 55px;
+	}
+
+	.wrapper-list-meja .meja .loading-state-meja .loading-state-meja-inner {
+		margin: auto;
 	}
 
 	.card {
@@ -41,6 +57,7 @@
 	.btn-group-flex .btn {
 		height: 50px;
 		width: 100%;
+		visibility: hidden;
 	}
 
 	.btn-group-flex .btn-start-sewa {
@@ -176,6 +193,11 @@
 								foreach($meja_list as $i) {
 									?>
 									<div id="meja-<?= $i->meja_id ?>" class="meja meja_div <?= $i->in_use == 1 ? 'not-available' : 'available' ?>">
+										<div class="loading-state-meja">
+											<div class="loading-state-meja-inner">
+												<i class="fa fa-spinner fa-spin"></i>
+											</div>
+										</div>
 										<div class="card">
 											<form class="form-meja" data-idmeja="<?= $i->meja_id ?>">
 												<div class="card-header">
@@ -271,6 +293,21 @@
 		return hours + "h " + minutes + "m " + seconds + "s ";
 	}
 
+	function hideLoadingState() {
+		$('.loading-state-meja').hide();
+		$('.btn-group-flex .btn').css('visibility', 'visible');
+	}
+
+	function hideSpecifiedLoadingState(id) {
+		$('#meja' + id + ' .loading-state-meja').hide();
+		$('#meja' + id + ' .btn-group-flex .btn').css('visibility', 'visible');
+	}
+
+	function showSpecifiedLoadingState(id) {
+		$('#meja' + id + ' .loading-state-meja').show();
+		$('#meja' + id + ' .btn-group-flex .btn').css('visibility', 'hidden');
+	}
+
 	arrayTimerDurasi = new Array();
 	arrayTimerLeft = new Array();
 	// loop through all meja
@@ -279,10 +316,11 @@
 		arrayTimerDurasi.push(null);
 		// push null to arrayTimerLeft
 		arrayTimerLeft.push(null);
-
 	})
 	
-	function setDurasiAndSisa(index, start, end) {
+	function setDurasiAndSisa(index, start, end, meja_id = null) {
+
+		meja_id = meja_id == null ? index : meja_id;
 		
 		if (arrayTimerDurasi[index] != null) {
 			clearInterval(arrayTimerDurasi[index]);
@@ -292,17 +330,51 @@
 		}
 		
 		arrayTimerDurasi[index] = setInterval(function() {
-			$('.meja_div').eq(index).find('.duration-time').text(durasi(start, new Date()));
+			$('.meja_div').eq(meja_id).find('.duration-time').text(durasi(start, new Date()));
 		}, 1000);
 
 		arrayTimerLeft[index] = setInterval(function() {
-			$('.meja_div').eq(index).find('.left-time').text(timeLeft(new Date(), end));
+			$('.meja_div').eq(meja_id).find('.left-time').text(timeLeft(new Date(), end));
 		}, 1000);
 
 		// console.log(arrayTimer)
 	}
 
+	function getMejaStatusTimer() {
+		$.ajax({
+			url: '<?= base_url('meja/getMejaStatusTimer') ?>',
+			type: 'GET',
+			success: function(data) {
+				// console.log(data)
+				var dt = JSON.parse(data)
+
+				// loop through dt
+				$.each(dt, function(index, val) {
+					// console.log(val)
+					// set durasi and sisa
+					setDurasiAndSisa(index, val.start_time, val.end_time, val.meja_id - 1);
+					
+					// find meja div index
+					var mejaDiv = $('#meja-' + val.meja_id);
+					
+					mejaDiv.find('.btn-group-flex').html(`
+						<button class="btn btn-order-menu" type="button">Order Menu</button>
+						<button class="btn btn-checkout" type="button">Checkout</button>
+					`)
+
+					mejaDiv.find('.select-paket').prop('disabled', true);
+
+					mejaDiv.find('.bill-id').html(val.bill_id)
+					mejaDiv.find('.start-time').html(val.start_time)
+
+				});
+				hideLoadingState()
+			}
+		});
+	}
+
 	$(document).ready(function() {
+		getMejaStatusTimer()
 
 		$('.select-paket').select2();
 
@@ -325,6 +397,8 @@
 			var index_meja = $('.meja_div').index($(this).closest('.meja_div'));
 			console.log(index_meja)
 
+			showSpecifiedLoadingState()
+
 			$.ajax({
 				url: '<?= base_url('dashboard/start_billing') ?>',
 				type: 'POST',
@@ -344,6 +418,7 @@
 						<button class="btn btn-order-menu" type="button">Order Menu</button>
 						<button class="btn btn-checkout" type="button">Checkout</button>
 					`)
+					hideLoadingState()
 				},
 				error: function() {
 					alert('error');
