@@ -185,4 +185,37 @@ class Dashboard extends CI_Controller {
 
 	}
 
+	public function get_informasibilling() {
+		$id_billing = $this->input->post('billing_id');
+
+		// get data billing
+		$this->load->model('Transaksi_model');
+		$billing_data = $this->Transaksi_model->get_by_billing_id($id_billing);
+
+		$paketyangdimaenindaridatabilling = json_decode($billing_data->paket, TRUE);
+		$additionalitemdaridatabilling = json_decode($billing_data->additional_item, TRUE);
+		$menittotal = 0;
+
+		foreach ($paketyangdimaenindaridatabilling as $q => $v) {
+			$menittotal += intval($v['menit']);
+		}
+
+		// convert menittotal to hours and minutes and seconds
+		$hours = floor($menittotal / 60);
+		$minutes = ($menittotal % 60);
+		$seconds = 0;
+
+		$durasinya = $hours.':'.$minutes.':'.$seconds;
+
+		$arrdata = array(
+			'billing_id' => $id_billing,
+			'start_time' => $billing_data->start,
+			'total_durasi' => $durasinya.' ('.$menittotal.' Menit)',
+			'paketlist' => $paketyangdimaenindaridatabilling,
+			'itemlist' => $additionalitemdaridatabilling,
+		);
+
+		$this->load->view('transaksi/meja_billing_detail', $arrdata, FALSE);
+	}
+
 }

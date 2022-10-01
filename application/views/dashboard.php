@@ -277,6 +277,26 @@
 	</div>
 </div>
 
+<!-- create modal detail-meja -->
+<div class="modal fade" id="modal-detail-meja" tabindex="-1" role="dialog" aria-labelledby="modal-detail-meja" aria-hidden="true">
+	<div class="modal-dialog modal-dialog-centered modal-dialog-scrollable" role="document">
+		<div class="modal-content">
+			<div class="modal-header">
+				<h5 class="modal-title">Detail Meja</h5>
+				<button type="button" class="close" data-dismiss="modal" aria-label="Close">
+					<span aria-hidden="true">&times;</span>
+				</button>
+			</div>
+			<div class="modal-body">
+				
+			</div>
+			<div class="modal-footer">
+				<button type="button" class="btn btn-secondary" data-dismiss="modal">Close</button>
+			</div>
+		</div>
+	</div>
+</div>
+
 <!-- create modal tambah-billing -->
 <div class="modal fade" id="modal-tambah-billing" tabindex="-1" role="dialog" aria-labelledby="modal-tambah-billing" aria-hidden="true">
 	<div class="modal-dialog modal-dialog-centered" role="document">
@@ -692,6 +712,27 @@
 					// change button to normal state
 					disform.find('#tambah-billing-action').html('Tambah')
 					disform.find('#tambah-billing-action').removeAttr('disabled')
+				}
+			})
+		})
+
+		$(document).on('click', '.btn-informasimeja', function(e) {
+			e.preventDefault()
+			$('#modal-detail-meja').modal('show');
+
+			var id_billing = $(this).closest('.meja_div').find('.bill-id').text()
+
+			$.ajax({
+				url: '<?= base_url('dashboard/get_informasibilling') ?>',
+				type: 'POST',
+				data: {
+					billing_id: id_billing
+				},
+				success: function(data) {
+					$('#modal-detail-meja').find('.modal-body').html(data)
+				},
+				error: function() {
+					alert('error');
 				}
 			})
 		})
