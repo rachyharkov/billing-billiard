@@ -11,15 +11,18 @@ class Dashboard extends CI_Controller {
 		// check_admin();
 		$this->load->model('Meja_model');
 		$this->load->model('Paket_model');
+		$this->load->model('Produk_model');
     }
 
 	public function index()
 	{
 		$meja_list = $this->Meja_model->get_all();
 		$paket_list = $this->Paket_model->get_all();
+		$produk_list = $this->Produk_model->get_all();
 		$data = array(
 			'meja_list' => $meja_list,
 			'paket_list' => $paket_list,
+			'makananminuman_list' => $produk_list
 		);
 
 		$this->template->load('template', 'dashboard', $data);
@@ -221,6 +224,75 @@ class Dashboard extends CI_Controller {
 		);
 
 		$this->load->view('transaksi/meja_billing_detail', $arrdata, FALSE);
+	}
+
+	public function get_order_itemofbilling() {
+
+		$billing_id = $this->input->post('billing_id');
+
+		$this->load->model('Transaksi_model');
+		$billing_data = $this->Transaksi_model->get_by_billing_id($billing_id);
+
+		$additionalitemdaridatabilling = json_decode($billing_data->additional_item, TRUE);
+
+		$str = '';
+
+		if($additionalitemdaridatabilling != NULL) {
+			foreach ($additionalitemdaridatabilling as $key => $value) {
+				$str .= '<tr>
+							<td>'.$value['nama_produk'].'<input type="hidden" name="menu_id[]" value="'.$value['produk_id'].'"/></td>
+							<td><input type="number" min="1" class="qty-order" name="qty[]" value="'.$value['qty'].'"/></td>
+							<td>'.$value['harga'].'</td>
+							<td>'.$value['harga'] * $value['qty'].'</td>
+							<td><button class="btn btn-danger btn-sm btn-hapus-order" type="button">Hapus</button></td>
+						</tr>';
+			}
+		}
+
+		echo $str;
+
+		
+	}
+
+	public function update_menu_order() {
+		$billing_id = $this->input->post('billing_id');
+		$menu_id = $this->input->post('menu_id[]');
+		$qty = $this->input->post('qty[]');
+
+		$pesenan = array();
+		
+		if($menu_id == NULL) {
+			$pesenan = [];
+		} else {
+			foreach($menu_id as $key => $value) {
+
+				$getprodukdetail = $this->Produk_model->get_by_id($value);
+	
+				$pesenan[] = array(
+					'produk_id' => $value,
+					'nama_produk' => $getprodukdetail->nama_produk,
+					'harga' => $getprodukdetail->harga,
+					'qty' => $qty[$key],
+				);
+			}
+		}
+
+
+
+		$this->load->model('Transaksi_model');
+
+		$arraydatabilling = array(
+			'additional_item' => json_encode($pesenan),
+		);
+
+		$this->Transaksi_model->update_by_billing_id($billing_id, $arraydatabilling);
+
+		$arrr = array(
+			'status' => 'success',
+		);
+
+		echo json_encode($arrr);
+
 	}
 
 }

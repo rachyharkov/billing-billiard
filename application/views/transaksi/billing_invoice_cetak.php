@@ -101,7 +101,7 @@
                         ?>
                         <tr>
                             <td><?= $key + 1 ?></td>
-                            <td><?= $value['item'] ?></td>
+                            <td><?= $value['nama_produk'] ?></td>
                             <td><?= $value['qty'] ?></td>
                             <td><?= $value['harga'] ?></td>
                             <td><?= $subtotalitem ?></td>
@@ -117,7 +117,7 @@
 
                 ?>
                 <tr>
-                    <td colspan="3" style="font-size: 13px;">Total</td>
+                    <td colspan="4" style="font-size: 13px;">Total</td>
                     <td><b style="font-size: 13px;"><?= $total_harga_additem ?></b></td>
                 </tr>
             </table>

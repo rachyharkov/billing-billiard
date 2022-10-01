@@ -70,7 +70,7 @@
                         ?>
                         <tr>
                             <td><?= $key + 1 ?></td>
-                            <td><?= $value['item'] ?></td>
+                            <td><?= $value['nama_produk'] ?></td>
                             <td><?= $value['qty'] ?></td>
                             <td><?= $value['harga'] ?></td>
                             <td><?= $subtotalitem ?></td>
