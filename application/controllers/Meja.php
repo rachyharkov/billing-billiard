@@ -137,7 +137,12 @@ class Meja extends CI_Controller
                 $getpaketlistinbilling = json_decode($getdatabilling->paket, TRUE);
                 
                 $paket = $this->Paket_model->get_by_id(end($getpaketlistinbilling)['id_paket']);
-                
+
+                $menit_list = [];
+                foreach ($getpaketlistinbilling as $q => $v) {
+                    $menit_list[] = intval($v['menit']);
+                }
+
                 $minutestoadd = $paket->menit. ' Minutes';
     
                 $start_main = $getdatabilling->start;
@@ -148,6 +153,7 @@ class Meja extends CI_Controller
                     'bill_id' => $getdatabilling->billing_id,
                     'start_time' => $getdatabilling->start,
                     'end_time' => date('Y-m-d H:i:s', strtotime($getdatabilling->end)),
+                    'menit_list' => $menit_list,
                     'meja_id' => $value->meja_id,
                     'paket_id' => $paket->paket_id,
                 );

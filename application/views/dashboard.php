@@ -51,6 +51,12 @@
 		box-shadow: rgb(255 193 7 / 20%) 0px 7px 29px 0px;
 	}
 
+	.btn-informasimeja {
+		position: absolute;
+		top: 0;
+		right: 15px;
+	}
+
 	.btn-group-flex {
 		margin-top: 15px;
 		width: 100%;
@@ -209,8 +215,9 @@
 										</div>
 										<div class="card">
 											<form class="form-meja" data-idmeja="<?= $i->meja_id ?>">
-												<div class="card-header">
+												<div class="card-header" style="position: relative;">
 													<h3 class="card-title" style="font-weight: bold;"><?= $i->nama_meja ?></h3>
+													<button type="button" class="btn btn-sm btn-icon btn-circle btn-secondary btn-informasimeja"><i class="fa fa-info"></i></button>
 												</div>
 												<div class="card-body">
 													<table class="table">
@@ -276,10 +283,8 @@
 		<form id="form-tambah-billing" class="form">
 			<div class="modal-content">
 				<div class="modal-header">
-					<h5 class="modal-title" id="modal-tambah-billing">Tambah Billing <span id="id_billing_text"></span></h5>
-					<button type="button" class="close" data-dismiss="modal" aria-label="Close">
-						<span aria-hidden="true">&times;</span>
-					</button>
+					<button type="button" class="close" data-dismiss="modal" aria-hidden="true">×</button>	
+					<h4 class="modal-title" id="modal-tambah-billing">Tambah Billing <span id="id_billing_text"></span></h4>
 				</div>
 				<div class="modal-body">
 					<div class="form-group">
@@ -303,23 +308,8 @@
 		</form>
 	</div>
 </div>
-
+<script src="https://cdn.jsdelivr.net/npm/dayjs@1/dayjs.min.js"></script>
 <script>
-
-	function durasi(start, end) {
-
-		var start = new Date(start);
-		var end = new Date(end);
-
-		var diff = end - start;
-
-		var days = Math.floor(diff / (1000 * 60 * 60 * 24));
-		var hours = Math.floor((diff % (1000 * 60 * 60 * 24)) / (1000 * 60 * 60));
-		var minutes = Math.floor((diff % (1000 * 60 * 60)) / (1000 * 60));
-		var seconds = Math.floor((diff % (1000 * 60)) / 1000);
-
-		return hours + " Jam " + minutes + " Menit " + seconds + " Detik";
-	}
 
 	function totalSeconds(start, end) {
 		
@@ -363,9 +353,11 @@
 		$('#meja-' + id + ' .loading-state-meja').show();
 		$('#meja-' + id + ' .btn-group-flex .btn').css('visibility', 'hidden');
 	}
-
+	arraySecondsDuration = new Array();
 	arrayTimerDurasi = new Array();
 	arrayTimerLeft = new Array();
+	arrayTimeOut = new Array();
+
 	// loop through all meja
 	$('.meja_div').each(function(index, el) {
 		// push null to arrayTimerDurasi
@@ -379,21 +371,38 @@
 		clearInterval(arrayTimerLeft[id]);
 	}
 
+	function sumArrayofMinutes(array) {
+		var sum = 0;
+		for (var i = 0; i < array.length; i++) {
+			sum += array[i];
+		}
+		return sum;
+	}
+
 	function tambahBilling() {
 		
 	}
+
+	function convertSecondsToHoursMinutesSeconds(seconds) {
+		var hours = Math.floor(seconds / 3600);
+		var minutes = Math.floor((seconds % 3600) / 60);
+		var seconds = Math.floor((seconds % 3600) % 60);
+
+		return hours + " Jam " + minutes + " Menit " + seconds + " Detik";
+	}
 	
-	function setDurasiAndSisa(index, start, end, meja_id = null) {
+	function setDurasiAndSisa(index, totalSecondsOfThisMeja, end, meja_id = null) {
 
 		meja_id = meja_id == null ? index : meja_id;
 		
 		if (arrayTimerDurasi[index] != null) {
 			clearInterval(arrayTimerDurasi[index]);
 		}
+
 		if (arrayTimerLeft[index] != null) {
 			clearInterval(arrayTimerLeft[index]);
 		}
-
+		
 		var mejaDiv = $('.meja_div').eq(meja_id);
 		var totalseconds = totalSeconds(new Date(), end)
 
@@ -401,25 +410,42 @@
 			alert('ADA YANG ABIS! Meja : ' + mejaDiv.find('.card-title').text())
 			mejaDiv.addClass('pending');
 
-			durasimaenterakhir = durasi(start, end)
-
-			mejaDiv.find('.duration-time').text(durasimaenterakhir);
 			mejaDiv.find('.left-time').text(0 + ' jam ' + 0 + ' menit ' + 0 + ' detik');
 			mejaDiv.find('.btn-group-flex').html(`
 				<button class="btn btn-tambah-billing" type="button">Tambah</button>
 				<button class="btn btn-order-menu" type="button">Order Menu</button>
 				<button class="btn btn-checkout" type="button">Checkout</button>
 			`)
+
+			var totalDurationSeconds = convertSecondsToHoursMinutesSeconds(arraySecondsDuration[index])
+				// console.log(totalDurationSeconds)
+			mejaDiv.find('.duration-time').text(totalDurationSeconds)
 		} else {
 			mejaDiv.removeClass('pending');
 			mejaDiv.addClass('not-available')
-			arrayTimerDurasi[index] = setInterval(function() {
-				mejaDiv.find('.duration-time').text(durasi(start, new Date()));
-			}, 1000);
 
 			arrayTimerLeft[index] = setInterval(function() {
 				mejaDiv.find('.left-time').text(timeLeft(new Date(), end));
+
+				var totalDurationSeconds = convertSecondsToHoursMinutesSeconds(arraySecondsDuration[index] + totalSeconds(end, new Date()))
+				// console.log(totalDurationSeconds)
+				mejaDiv.find('.duration-time').text(totalDurationSeconds)
 			}, 1000);
+
+			arrayTimeOut[index] = setTimeout(function() {
+				var durationtimetext = mejaDiv.find('.duration-time').text();
+				mejaDiv.find('.left-time').text(0 + ' jam ' + 0 + ' menit ' + 0 + ' detik');
+				mejaDiv.find('.btn-group-flex').html(`
+					<button class="btn btn-tambah-billing" type="button">Tambah</button>
+					<button class="btn btn-order-menu" type="button">Order Menu</button>
+					<button class="btn btn-checkout" type="button">Checkout</button>
+				`)
+				clearInterval(arrayTimerDurasi[index]);
+				clearInterval(arrayTimerLeft[index]);
+				hideSpecifiedLoadingState(meja_id + 1);
+				mejaDiv.removeClass('not-available');
+				mejaDiv.addClass('pending')
+			}, totalseconds * 1000);
 
 			mejaDiv.find('.btn-group-flex').html(`
 				<button class="btn btn-tambah-billing" type="button">Tambah</button>
@@ -442,7 +468,13 @@
 					// console.log(val)
 					// set durasi and sisa
 					var mejaDiv = $('#meja-' + val.meja_id);
-					setDurasiAndSisa(index, val.start_time, val.end_time, val.meja_id - 1);
+
+					var minutesTotal = sumArrayofMinutes(val.menit_list);
+					var totalSecondsOfThisMeja = minutesTotal * 60;
+					arraySecondsDuration[index] = totalSecondsOfThisMeja;
+					
+
+					setDurasiAndSisa(index, totalSecondsOfThisMeja, val.end_time, val.meja_id - 1);
 					
 					// find meja div index
 
@@ -596,7 +628,7 @@
 					bill_id.html(data.bill_id)
 					start_time.html(data.start_time)
 					
-					setDurasiAndSisa(index_meja, data.start_time, data.end_time)
+					setDurasiAndSisa(index_meja, 0, data.end_time)
 					disform.find('.btn-group-flex').html(`
 						<button class="btn btn-tambah-billing" type="button">Tambah</button>
 						<button class="btn btn-order-menu" type="button">Order Menu</button>

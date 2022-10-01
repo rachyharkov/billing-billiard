@@ -158,6 +158,11 @@ class Dashboard extends CI_Controller {
 
 		$billiard_play_price = $billing_data->grand_total + $paketyangdipilih->harga;
 
+		$menit_list = [];
+		foreach ($paketpaketnya as $q => $v) {
+			$menit_list[] = intval($v['menit']);
+		}
+
 		$arr_data_transaksi = array(
 			'paket' => json_encode($paketpaketnya),
 			'end' => $end_main_new,
@@ -171,6 +176,7 @@ class Dashboard extends CI_Controller {
 			'bill_id' => $id_billing,
 			'start_time' => $billing_data->start,
 			// 'left_time' => $this->get_time_left($end_main_new),
+			'menit_list' => $menit_list,
 			'end_time' => $end_main_new,
 			'status' => 'success',
 		);
