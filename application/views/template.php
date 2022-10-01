@@ -26,7 +26,7 @@
 </head>
 
 <body>
-	<div class="modal fade" id="modal-dialog">
+	<div class="modal fade" id="modal-dialog-ganti-password">
 		<div class="modal-dialog">
 			<div class="modal-content">
 				<div class="modal-header">
@@ -81,7 +81,7 @@
 						</a>
 						<ul class="dropdown-menu animated fadeInLeft">
 							<li class="arrow"></li>
-							<li><a href="#modal-dialog" data-toggle="modal">Ganti Password</a></li>
+							<li><a href="#modal-dialog-ganti-password" data-toggle="modal">Ganti Password</a></li>
 							<li><a href="<?= base_url() ?>auth/logout" onclick="return confirm('Anda Yakin Logout ?')">Log Out</a></li>
 						</ul>
 					</li>
