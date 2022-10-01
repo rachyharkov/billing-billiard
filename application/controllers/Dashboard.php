@@ -63,16 +63,27 @@ class Dashboard extends CI_Controller {
 
 			$time_left = floor($total_hours_left) . ' Jam ' . floor($total_minutes_left) . ' Menit ' . floor($total_seconds_left) . ' Detik';
 
+			$getpaketdetail = $this->Paket_model->get_by_id($paket_choice);
+
+			$arrdatapaket = array(
+				[
+					'id_paket' => $getpaketdetail->paket_id,
+					'nama_paket' => $getpaketdetail->nama_paket,
+					'menit' => $getpaketdetail->menit,
+					'harga' => $getpaketdetail->harga,
+				]
+			);
+
 			$this->load->helper('fungsi');
 			$arr_data_transaksi = array(
 				'billing_id' => generateBillingId(),
-				'paket' => json_encode([$paket_choice]),
+				'paket' => json_encode($arrdatapaket),
 				'start' => $start_main,
 				'end' => $end_main,
 				'meja_id' => $id_meja,
-				'billiard_play_price' => 50000,
+				'billiard_play_price' => $getpaketdetail->harga,
 				'additional_item' => json_encode(array()),
-				'grand_total' => 50000,
+				'grand_total' => $getpaketdetail->harga,
 				'payment_status' => 0
 			);
 
@@ -89,13 +100,83 @@ class Dashboard extends CI_Controller {
 			$arr = array(
 				'bill_id' => $arr_data_transaksi['billing_id'],
 				'start_time' => $start_main,
-				'left_time' => $time_left,
+				// 'left_time' => $time_left,
 				'end_time' => $end_main,
-				'status' => '1',
+				'status' => 'success',
 			);
 
 			echo json_encode($arr);
 		}
+	}
+
+	public function tambah_billing() {
+
+		$this->load->model('Transaksi_model');
+		$id_paket = $this->input->post('id_paket');
+		$id_billing = $this->input->post('id_billing');
+
+		$getmenitbypaketchoice = $this->Paket_model->get_by_id($id_paket)->menit;
+
+		$total_menit_tambah = $getmenitbypaketchoice.' Minutes';
+
+		$billing_data = $this->Transaksi_model->get_by_billing_id($id_billing);
+
+		$paketpaketnya = json_decode($billing_data->paket, TRUE);
+
+		$paketyangdipilih = $this->Paket_model->get_by_id($id_paket);
+
+		$additionalitem = 0;
+
+		$cekadditionalitem = json_decode($billing_data->additional_item, TRUE);
+
+		if($cekadditionalitem != NULL) {
+			foreach ($cekadditionalitem as $key => $value) {
+				$additionalitem += $value['harga'];
+			}
+		}
+
+
+		$end_main_old = date('Y-m-d H:i:s', strtotime($billing_data->end));
+		$end_main_new = '';
+		// if date now <= end_main_old, then add time to end_main_old, else return
+		
+		
+
+		$datenow = date('Y-m-d H:i:s');
+		if($datenow <= $end_main_old) {
+			$end_main_new = date('Y-m-d H:i:s', strtotime($end_main_old . ' + ' . $total_menit_tambah));
+		} else {
+			$end_main_new = date('Y-m-d H:i:s', strtotime($datenow . ' + ' . $total_menit_tambah));
+		}
+
+		$paketpaketnya[] = array(
+			'id_paket' => $paketyangdipilih->paket_id,
+			'nama_paket' => $paketyangdipilih->nama_paket,
+			'menit' => $paketyangdipilih->menit,
+			'harga' => $paketyangdipilih->harga,
+		);
+
+		$billiard_play_price = $billing_data->grand_total + $paketyangdipilih->harga;
+
+		$arr_data_transaksi = array(
+			'paket' => json_encode($paketpaketnya),
+			'end' => $end_main_new,
+			'billiard_play_price' => $billiard_play_price,
+			'grand_total' => $billiard_play_price + $additionalitem,
+		);
+
+		$this->Transaksi_model->update_by_billing_id($id_billing, $arr_data_transaksi);
+
+		$arr = array(
+			'bill_id' => $id_billing,
+			'start_time' => $billing_data->start,
+			// 'left_time' => $this->get_time_left($end_main_new),
+			'end_time' => $end_main_new,
+			'status' => 'success',
+		);
+
+		echo json_encode($arr);
+
 	}
 
 }

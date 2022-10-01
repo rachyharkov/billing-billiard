@@ -134,10 +134,10 @@ class Meja extends CI_Controller
     
                 $getdatabilling = $this->Transaksi_model->get_by_billing_id($value->billing_id);
     
-                $getpaketlistinbilling = json_decode($getdatabilling->paket);
-    
-                $paket = $this->Paket_model->get_by_id(end($getpaketlistinbilling));
-    
+                $getpaketlistinbilling = json_decode($getdatabilling->paket, TRUE);
+                
+                $paket = $this->Paket_model->get_by_id(end($getpaketlistinbilling)['id_paket']);
+                
                 $minutestoadd = $paket->menit. ' Minutes';
     
                 $start_main = $getdatabilling->start;
@@ -147,7 +147,7 @@ class Meja extends CI_Controller
                 $arrtime[$key] = array(
                     'bill_id' => $getdatabilling->billing_id,
                     'start_time' => $getdatabilling->start,
-                    'end_time' => date('Y-m-d H:i:s', strtotime($getdatabilling->start.' + '. $minutestoadd)),
+                    'end_time' => date('Y-m-d H:i:s', strtotime($getdatabilling->end)),
                     'meja_id' => $value->meja_id,
                     'paket_id' => $paket->paket_id,
                 );

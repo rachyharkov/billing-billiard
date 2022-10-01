@@ -273,26 +273,34 @@
 <!-- create modal tambah-billing -->
 <div class="modal fade" id="modal-tambah-billing" tabindex="-1" role="dialog" aria-labelledby="modal-tambah-billing" aria-hidden="true">
 	<div class="modal-dialog modal-dialog-centered" role="document">
-		<div class="modal-content">
-			<div class="modal-header">
-				<h5 class="modal-title" id="modal-tambah-billing">Tambah Billing</h5>
-				<button type="button" class="close" data-dismiss="modal" aria-label="Close">
-					<span aria-hidden="true">&times;</span>
-				</button>
-			</div>
-			<div class="modal-body">
-				<form id="form-tambah-billing">
+		<form id="form-tambah-billing" class="form">
+			<div class="modal-content">
+				<div class="modal-header">
+					<h5 class="modal-title" id="modal-tambah-billing">Tambah Billing <span id="id_billing_text"></span></h5>
+					<button type="button" class="close" data-dismiss="modal" aria-label="Close">
+						<span aria-hidden="true">&times;</span>
+					</button>
+				</div>
+				<div class="modal-body">
 					<div class="form-group">
-						<label for="nama-pelanggan">Nama Pelanggan</label>
-						<input type="text" class="form-control" id="nama-pelanggan" name="nama_pelanggan" placeholder="Nama Pelanggan">
+						<select class="select-paket" style="width: 100%;" name="id_paket">
+							<?php
+								foreach($paket_list as $p) {
+									?>
+									<option value="<?= $p->paket_id ?>" ><?= $p->nama_paket ?> (+<?= $p->menit ?> Menit)</option>
+									<?php
+								}
+							?>
+						</select>
 					</div>
-					<div class="form-group">
-						<label for="no-telp">No. Telp</label>
-						<input type="text" class="form-control" id="no-telp" name="no_telp" placeholder="No. Telp">
-					</div>
-				</form>
+				</div>
+				<div class="modal-footer">
+					<input type="text" name="id_billing" id="id_billing" value="">
+					<button type="button" class="btn btn-secondary" data-dismiss="modal">Close</button>
+					<button type="submit" class="btn btn-primary" id="tambah-billing-action">Tambah</button>
+				</div>
 			</div>
-		</div>
+		</form>
 	</div>
 </div>
 
@@ -369,6 +377,10 @@
 	function removeInterval(id) {
 		clearInterval(arrayTimerDurasi[id]);
 		clearInterval(arrayTimerLeft[id]);
+	}
+
+	function tambahBilling() {
+		
 	}
 	
 	function setDurasiAndSisa(index, start, end, meja_id = null) {
@@ -538,10 +550,14 @@
 		$(document).on('click', '.btn-tambah-billing', function(e) {
 			var mejadiv = $(this).parents('.meja_div');
 			var meja_id = mejadiv.find('.card-title').text();
+			var billing_id = mejadiv.find('.bill-id').text();
 			alert('This button belongs to ' + meja_id);
 
 			// show modal tambah billing
 			$('#modal-tambah-billing').modal('show');
+
+			$('#modal-tambah-billing').find('#id_billing_text').text(billing_id);
+			$('#modal-tambah-billing').find('#id_billing').val(billing_id);
 		})
 
 		$(document).on('submit','.form-meja', function(e) {
@@ -582,6 +598,7 @@
 					
 					setDurasiAndSisa(index_meja, data.start_time, data.end_time)
 					disform.find('.btn-group-flex').html(`
+						<button class="btn btn-tambah-billing" type="button">Tambah</button>
 						<button class="btn btn-order-menu" type="button">Order Menu</button>
 						<button class="btn btn-checkout" type="button">Checkout</button>
 					`)
@@ -593,6 +610,58 @@
 					disform.find('.btn-start-meja').removeAttr('disabled')
 				}
 			});
+		})
+
+		$(document).on('submit', '#form-tambah-billing', function(e) {
+			e.preventDefault()
+
+			var disform = $(this)
+
+			disform.find('#tambah-billing-action').html('<i class="fa fa-spinner fa-spin"></i>')
+			disform.find('#tambah-billing-action').attr('disabled', true)
+
+			$.ajax({
+				url: '<?= base_url('dashboard/tambah_billing') ?>',
+				type: 'POST',
+				data: disform.serialize(),
+				success: function(data) {
+					var data = JSON.parse(data);
+					console.log(data)
+					if (data.status == 'success') {
+						// sweetalert success
+						Swal.fire(
+							'Success!',
+							'Tambah billing berhasil!',
+							'success'
+						)
+						// hide modal tambah billing
+						$('#modal-tambah-billing').modal('hide');
+						// reset form tambah billing
+						getMejaStatusTimer()
+						disform[0].reset();
+						hideLoadingState()
+						// change button to normal state
+						disform.find('#tambah-billing-action').html('Tambah')
+						disform.find('#tambah-billing-action').removeAttr('disabled')
+					} else {
+						// sweetalert error
+						Swal.fire(
+							'Error!',
+							'Tambah billing gagal!',
+							'error'
+						)
+						// change button to normal state
+						disform.find('#tambah-billing-action').html('Tambah')
+						disform.find('#tambah-billing-action').removeAttr('disabled')
+					}
+				},
+				error: function() {
+					alert('error');
+					// change button to normal state
+					disform.find('#tambah-billing-action').html('Tambah')
+					disform.find('#tambah-billing-action').removeAttr('disabled')
+				}
+			})
 		})
 	});
 </script>
