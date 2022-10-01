@@ -12,17 +12,17 @@
 							<div class="x_panel">
 								<div class="box-body">
 									<div class="box-body">
-										<form class="form-horizontal" action="/" method="POST">
+										<form class="form-horizontal" action="<?= base_url() ?>laporan" method="GET">
 											<div class="form-group">
 												<label class="col-md-4 control-label">Start Date</label>
 												<div class="col-md-8">
-													<input type="date" class="form-control" placeholder="">
+													<input type="date" class="form-control" placeholder="" name="start_date" value="<?= $start_date ?>">
 												</div>
 											</div>
 											<div class="form-group">
 												<label class="col-md-4 control-label">End Date</label>
 												<div class="col-md-8">
-													<input type="date" class="form-control" placeholder="">
+													<input type="date" class="form-control" placeholder="" name="end_date" value="<?= $end_date ?>">
 												</div>
 											</div>
 											<div class="form-group">
@@ -36,8 +36,10 @@
 							</div>
 						</div>
 					</div>
+
 				</div>
 			</div>
+
 		</div>
 		<div class="col-md-9">
 			<div class="panel panel-inverse">
@@ -56,32 +58,64 @@
 												<tr>
 													<th>No</th>
 													<th>Bill</th>
-													<th>Tanggal</th>
-													<th>Detail Paket</th>
+													<th>Meja</th>
 													<th>Mulai</th>
 													<th>Selesai</th>
-													<th>Total Harga</th>
+													<th>Detail Paket</th>
+													<th>Detail Makanan/Minuman</th>
+													<th>Grand Total</th>
 													<th>Action</th>
 												</tr>
 											</thead>
+											<tbody><?php $no = 1;
+											$jml = 0;
+													foreach ($data_laporan as $data) {
+													?>
+													<tr>
+														<td><?= $no++ ?></td>
+														<td><?php echo $data->bill ?></td>
+														<td><?php echo $data->nama_meja ?></td>
+														<td><?php echo $data->start ?></td>
+														<td><?php echo $data->end ?></td>
+														<td> <?php $data_bill = json_decode($data->paket);
+																foreach ($data_bill as $value) {
+																	echo "Nama Paket : " . $value->nama_paket . '<br>';
+																	echo "Menit : " . $value->menit . '<br>';
+																	echo "Harga : " . rupiah($value->harga)  . '<br>';
+																	echo "____________________________ <br>";
+																}
+																?>
+															<b>Total : <?php echo rupiah($data->billiard_play_price)  ?></b>
+														</td>
+														<td> <?php $additional_item = json_decode($data->additional_item);
+																$total_makanan = 0;
+																foreach ($additional_item as $row) {
+																	echo "Nama Produk : " . $row->nama_produk . '<br>';
+																	echo "Harga : " . rupiah($row->harga)  . '<br>';
+																	echo "Qty : " . $row->qty . '<br>';
+																	echo "Subtotal : " . rupiah($row->qty * $row->harga) . '<br>';
+																	echo "____________________________ <br>";
+																	$total_makanan = $total_makanan + ($row->qty * $row->harga);
+																}
+																?>
+															<b>Total : <?php echo rupiah($total_makanan)  ?></b>
+														</td>
+														<td><?php echo rupiah($jml = $jml + $data->billiard_play_price + $total_makanan) ?></td>
+														<td>
+															<a href="<?= base_url() ?>billing/print/<?= $data->bill ?>" class="btn btn-sm btn-danger m-r-5"><i class="fa fa-print" aria-hidden="true"></i> Invoice</a>
+														</td>
+													</tr>
+												<?php } ?>
+											</tbody>
+
+
 											<tbody>
-												<tr>
-													<td>1</td>
-													<td>00127092022</td>
-													<td>27/09/2022</td>
-													<td> - Paket Niko A1 <br>
-														- Paket Niko A1
-													</td>
-													<td>27/09/2022 17:00:00</td>
-													<td>27/09/2022 19:00:00</td>
-													<td>Rp.100.000</td>
-													<td>
-														<button type="submit" class="btn btn-sm btn-success m-r-5"><i class="fa fa-eye" aria-hidden="true"></i> Detail</button>
-														<button type="submit" class="btn btn-sm btn-danger m-r-5"><i class="fa fa-print" aria-hidden="true"></i> Invoice</button>
-													</td>
-												</tr>
+
 											</tbody>
 										</table>
+										<div class="alert alert-success" role="alert">
+											<h5>Total Pemasukan : <?= rupiah($jml) ?></h5> 
+										</div>
 									</div>
 								</div>
 							</div>
