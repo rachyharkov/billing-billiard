@@ -647,7 +647,7 @@
 					
 					bill_id.html(data.bill_id)
 					start_time.html(data.start_time)
-					
+					arraySecondsDuration[index_meja] = data.seconds;
 					setDurasiAndSisa(index_meja, 0, data.end_time)
 					disform.find('.btn-group-flex').html(`
 						<button class="btn btn-tambah-billing" type="button">Tambah</button>

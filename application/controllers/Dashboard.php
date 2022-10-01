@@ -38,7 +38,11 @@ class Dashboard extends CI_Controller {
 		if($action == 'baru') {
 			$getmenitbypaketchoice = $this->Paket_model->get_by_id($paket_choice)->menit;
 
+			// convert getmenitbypaketchoice to seconds
+			$seconds_paket = $getmenitbypaketchoice * 60;
+			
 			$total_jam_tambah = $getmenitbypaketchoice.' Minutes';
+
 
 			$start_main = date('Y-m-d H:i:s');
 
@@ -101,6 +105,7 @@ class Dashboard extends CI_Controller {
 				'bill_id' => $arr_data_transaksi['billing_id'],
 				'start_time' => $start_main,
 				// 'left_time' => $time_left,
+				'seconds' => $seconds_paket,
 				'end_time' => $end_main,
 				'status' => 'success',
 			);
