@@ -320,7 +320,7 @@
 					</div>
 				</div>
 				<div class="modal-footer">
-					<input type="text" name="id_billing" id="id_billing" value="">
+					<input type="hidden" name="id_billing" id="id_billing" value="">
 					<button type="button" class="btn btn-secondary" data-dismiss="modal">Close</button>
 					<button type="submit" class="btn btn-primary" id="tambah-billing-action">Tambah</button>
 				</div>
@@ -545,7 +545,7 @@
 							var dt = JSON.parse(data)
 
 							// open new tab to print
-							var win = window.open('<?= base_url('billing/print/') ?>' + dt.bill_id, '_blank');
+							var win = window.open('<?= base_url('billing/print/') ?>' + dt.billing_id, '_blank');
 							win.focus();
 
 							if (dt.status == 'success') {
