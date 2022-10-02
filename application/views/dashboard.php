@@ -715,15 +715,21 @@
 					var data = JSON.parse(data);
 					console.log(data)
 
-					bill_id.html(data.bill_id)
-					start_time.html(data.start_time)
-					arraySecondsDuration[index_meja] = data.seconds;
-					setDurasiAndSisa(index_meja, 0, data.end_time)
-					disform.find('.btn-group-flex').html(`
-						<button class="btn btn-tambah-billing" type="button">Tambah</button>
-						<button class="btn btn-order-menu" type="button">Order Menu</button>
-						<button class="btn btn-checkout" type="button">Checkout</button>
-					`)
+					if(data.jenis_paket == 'loss') {
+
+					}
+
+					if(data.jenis_paket == 'custom') {
+						bill_id.html(data.bill_id)
+						start_time.html(data.start_time)
+						arraySecondsDuration[index_meja] = data.seconds;
+						setDurasiAndSisa(index_meja, 0, data.end_time)
+						disform.find('.btn-group-flex').html(`
+							<button class="btn btn-tambah-billing" type="button">Tambah</button>
+							<button class="btn btn-order-menu" type="button">Order Menu</button>
+							<button class="btn btn-checkout" type="button">Checkout</button>
+						`)
+					}
 					hideLoadingState()
 				},
 				error: function() {
@@ -799,7 +805,17 @@
 					billing_id: id_billing
 				},
 				success: function(data) {
-					$('#modal-detail-meja').find('.modal-body').html(data)
+					var dt = JSON.parse(data);
+					if(dt.status == 'not found') {
+						$('#modal-detail-meja').modal('hide');
+						Swal.fire(
+							'Error!',
+							dt.message,
+							'error'
+						)
+					} else {
+						$('#modal-detail-meja').find('.modal-body').html(dt.data)
+					}
 				},
 				error: function() {
 					alert('error');

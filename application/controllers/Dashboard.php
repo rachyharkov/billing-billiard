@@ -200,30 +200,47 @@ class Dashboard extends CI_Controller {
 		$this->load->model('Transaksi_model');
 		$billing_data = $this->Transaksi_model->get_by_billing_id($id_billing);
 
-		$paketyangdimaenindaridatabilling = json_decode($billing_data->paket, TRUE);
-		$additionalitemdaridatabilling = json_decode($billing_data->additional_item, TRUE);
-		$menittotal = 0;
+		if($billing_data) {
+			$paketyangdimaenindaridatabilling = json_decode($billing_data->paket, TRUE);
+			$additionalitemdaridatabilling = json_decode($billing_data->additional_item, TRUE);
+			$menittotal = 0;
+	
+			foreach ($paketyangdimaenindaridatabilling as $q => $v) {
+				$menittotal += intval($v['menit']);
+			}
+	
+			// convert menittotal to hours and minutes and seconds
+			$hours = floor($menittotal / 60);
+			$minutes = ($menittotal % 60);
+			$seconds = 0;
+	
+			$durasinya = $hours.':'.$minutes.':'.$seconds;
+	
+			$arrdata = array(
+				'billing_id' => $id_billing,
+				'start_time' => $billing_data->start,
+				'total_durasi' => $durasinya.' ('.$menittotal.' Menit)',
+				'paketlist' => $paketyangdimaenindaridatabilling,
+				'itemlist' => $additionalitemdaridatabilling,
+			);
+			
+			$arrresp = array(
+				'status' => 'success',
+				'data' => $this->load->view('transaksi/meja_billing_detail', $arrdata, FALSE),
+				'message' => 'ok'
+			);
 
-		foreach ($paketyangdimaenindaridatabilling as $q => $v) {
-			$menittotal += intval($v['menit']);
+			echo json_encode($arrresp);
+		} else {
+			$arrresp = array(
+				'status' => 'not found',
+				'data' => '',
+				'message' => 'Silahkan Memulai Billing Terlebih dahulu'
+			);
+
+			echo json_encode($arrresp);
 		}
 
-		// convert menittotal to hours and minutes and seconds
-		$hours = floor($menittotal / 60);
-		$minutes = ($menittotal % 60);
-		$seconds = 0;
-
-		$durasinya = $hours.':'.$minutes.':'.$seconds;
-
-		$arrdata = array(
-			'billing_id' => $id_billing,
-			'start_time' => $billing_data->start,
-			'total_durasi' => $durasinya.' ('.$menittotal.' Menit)',
-			'paketlist' => $paketyangdimaenindaridatabilling,
-			'itemlist' => $additionalitemdaridatabilling,
-		);
-
-		$this->load->view('transaksi/meja_billing_detail', $arrdata, FALSE);
 	}
 
 	public function get_order_itemofbilling() {
