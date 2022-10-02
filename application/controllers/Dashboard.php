@@ -238,9 +238,58 @@ class Dashboard extends CI_Controller {
 
 			if(is_numeric($billing_data->paket)) {
 				if($billing_data->paket == 0 || $billing_data->paket == 1) {
+
+					$additionalitemdaridatabilling = json_decode($billing_data->additional_item, TRUE);
+
+					$mulainya = new DateTime($billing_data->start);
+					$e = new DateTime();
+					$diffseconds = $e->getTimestamp() - $mulainya->getTimestamp();
+					
+					// end of date mulainya + diffseconds
+					$akhirnya = date('Y-m-d H:i:s', strtotime($mulainya->format('Y-m-d H:i:s') . ' + ' . $diffseconds . ' seconds'));
+					$this->load->model('Paket_model');
+					$getdatapaket = $this->Paket_model->get_by_id($billing_data->paket);
+
+					$hours = floor($diffseconds / 3600);
+					$minutes = floor(($diffseconds / 60) % 60);
+					$seconds = $diffseconds % 60;
+
+					$durasinya = $hours.':'.$minutes.':'.$seconds;
+
+					// multiple count based on minutes
+					$x = 0;
+					$begin = $mulainya;
+
+					// Set end date
+					$end = new DateTime($akhirnya);
+
+					$menitcappaketloss = $getdatapaket->menit;
+
+					// Set interval
+					$interval = new DateInterval('PT'.$menitcappaketloss.'M');
+
+					// Create daterange
+					$daterange = new DatePeriod($begin, $interval ,$end);
+
+					// Loop through range
+					foreach($daterange as $date){
+						// Output date and time
+						$x++;
+					}
+
+					$arrdata = array(
+						'billing_id' => $id_billing,
+						'nama_paket_lossnya' => $getdatapaket->nama_paket,
+						'start_time' => $mulainya,
+						'total_durasi' => $durasinya.' ('.$minutes.' Menit)',
+						'paketnya' => $getdatapaket,
+						'total_harga_billiard' => ($getdatapaket->harga * $x),
+						'itemlist' => $additionalitemdaridatabilling,
+					);
+
 					$arrresp = array(
 						'status' => 'success',
-						'data' => 'LOSS PACKAGE UNDER CONSTRUCTION PAGE',
+						'data' => $this->load->view('transaksi/meja_billing_detail_paketloss', $arrdata, TRUE),
 						'message' => 'ok'
 					);
 	
@@ -272,7 +321,7 @@ class Dashboard extends CI_Controller {
 				
 				$arrresp = array(
 					'status' => 'success',
-					'data' => $this->load->view('transaksi/meja_billing_detail', $arrdata, TRUE),
+					'data' => $this->load->view('transaksi/meja_billing_detail_paketcustom', $arrdata, TRUE),
 					'message' => 'ok'
 				);
 
