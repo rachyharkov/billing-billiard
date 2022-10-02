@@ -19,14 +19,20 @@ class Dashboard extends CI_Controller {
 		$meja_list = $this->Meja_model->get_all();
 		$paket_list = $this->Paket_model->get_all();
 		$produk_list = $this->Produk_model->get_all();
+
+
+
 		$data = array(
 			'meja_list' => $meja_list,
 			'paket_list' => $paket_list,
-			'makananminuman_list' => $produk_list
+			'makananminuman_list' => $produk_list,
+			'disclass' => $this
 		);
 
 		$this->template->load('template', 'dashboard', $data);
 	}
+
+ 
 
 	public function start_billing() {
 		$id_meja = $this->input->post('id_meja');
