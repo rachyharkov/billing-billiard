@@ -134,8 +134,10 @@ class Meja extends CI_Controller
     
                 $getdatabilling = $this->Transaksi_model->get_by_billing_id($value->billing_id);
 
+                // count string getdatabilling->paket
+
                 // is getdatabilling->paket integer?
-                if(is_numeric($getdatabilling->paket)) {
+                if(strlen($getdatabilling->paket) <= 5) {
                     $paket = $this->Paket_model->get_by_id($getdatabilling->paket);
 
 
@@ -177,7 +179,7 @@ class Meja extends CI_Controller
                         'end_time' => date('Y-m-d H:i:s', strtotime($getdatabilling->end)),
                         'menit_list' => $menit_list,
                         'meja_id' => $value->meja_id,
-                        'paket_id' => $paket->paket_id,
+                        'paket_id' => end($getpaketlistinbilling)['id_paket'],
                         'jenis_paket' => 'custom'
                     );
                 }

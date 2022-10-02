@@ -231,6 +231,7 @@
 														<td>
 															<select class="select-paket select2-b-aja" style="width: 100%;">
 																<?php
+																
 																foreach ($paket_list as $p) {
 																?>
 																	<option value="<?= $p->paket_id ?>"><?= $p->nama_paket ?></option>
@@ -374,10 +375,12 @@
 						<select class="select-paket select2-owo" style="width: 100%;" name="id_paket">
 							<?php
 							foreach ($paket_list as $p) {
-							?>
-								<option value="<?= $p->paket_id ?>"><?= $p->nama_paket ?> (+<?= $p->menit ?> Menit)</option>
-							<?php
-							}
+								if($p->paket_id != 0 || $p->paket_id != 1) {
+									?>
+										<option value="<?= $p->paket_id ?>"><?= $p->nama_paket ?> (+<?= $p->menit ?> Menit)</option>
+									<?php
+									}
+								}
 							?>
 						</select>
 					</div>
@@ -609,9 +612,7 @@
 
 						mejaDiv.find('.bill-id').html(val.bill_id)
 						mejaDiv.find('.start-time').html(val.start_time)
-					}
-
-					if(val.jenis_paket == 'custom') {
+					} else {
 						var mejaDiv = $('#meja-' + val.meja_id);
 
 						var minutesTotal = sumArrayofMinutes(val.menit_list);
@@ -781,6 +782,7 @@
 							<button class="btn btn-checkout" type="button">Checkout</button>
 						`)
 					}
+					disform.find('.select-paket').prop('disabled', true);
 
 					if(data.jenis_paket == 'custom') {
 						bill_id.html(data.bill_id)
