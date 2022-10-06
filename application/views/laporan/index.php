@@ -118,7 +118,7 @@
 													</tr>
 												<?php 
 												$jml += $data->billiard_play_price + $total_makanan;
-												} 
+												}
 												?>
 											</tbody>
 
