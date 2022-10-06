@@ -56,6 +56,10 @@
 							<thead>
 								<table id="data-table-default" class="table  table-bordered table-hover table-td-valign-middle">
 									<tr>
+										<td>Nama Paket</td>
+										<td><?= $nama_paket ?></td>
+									</tr>
+									<tr>
 										<td>Harga <?php echo form_error('harga') ?></td>
 										<td>
 											<input type="text" class="form-control" name="harga" id="harga" placeholder="Harga" value="<?php echo $harga; ?>" /><br>

@@ -53,26 +53,26 @@
 														<td><?= $paket_data[$length - 1]->keterangan ?></td>
 														<td style="text-align:center" width="200px">
 															<?php
-															echo anchor(site_url('paket/update/loss'), '<i class="fa fa-pencil" aria-hidden="true"></i>', 'class="btn btn-primary btn-sm update_data"');
+																echo anchor(site_url('paket/update/'.encrypt_url(0)), '<i class="fa fa-pencil" aria-hidden="true"></i>', 'class="btn btn-primary btn-sm update_data"');
 															?>
 														</td>
 													</tr>
 													<tr>
 														<td>1</td>
-														<td><?= $paket_data[$length - 1]->nama_paket ?></td>
+														<td><?= $paket_data[$length - 2]->nama_paket ?></td>
 														<td><?= rupiah($paket_data[$length - 2]->harga) ?></td>
 														<td>Per-<?= $paket_data[$length - 2]->menit ?> Menit</td>
 														<td><?= $paket_data[$length - 2]->keterangan ?></td>
 														<td style="text-align:center" width="200px">
 															<?php
-															echo anchor(site_url('paket/update/loss'), '<i class="fa fa-pencil" aria-hidden="true"></i>', 'class="btn btn-primary btn-sm update_data"');
+																echo anchor(site_url('paket/update/'.encrypt_url(1)), '<i class="fa fa-pencil" aria-hidden="true"></i>', 'class="btn btn-primary btn-sm update_data"');
 															?>
 														</td>
 													</tr>
 													<?php
 
 													foreach ($paket_data as $paket) {
-														if($paket->paket_id != 0) {
+														if($paket->paket_id > 1) {
 															?>
 															<tr>
 																<td><?= $no++ ?></td>

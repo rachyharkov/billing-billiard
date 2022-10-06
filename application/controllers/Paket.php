@@ -78,15 +78,16 @@ class Paket extends CI_Controller
     
     public function update($id) 
     {
+        $decoded_id = decrypt_url($id);
 
-        if($id == 'loss' || $id == 0){
-            $data_paket_personal = $this->Paket_model->get_by_id(0);
+        if($decoded_id <= 1) {
+            $data_paket_personal = $this->Paket_model->get_by_id($decoded_id);
             $data = array(
                 'button' => 'Update',
                 'jenis_paket' => 'bawaan',
                 'action' => site_url('paket/update_action'),
-                'paket_id' => set_value('paket_id', 'loss'),
-                'nama_paket' => set_value('nama_paket', 'Loss'),
+                'paket_id' => set_value('paket_id', $data_paket_personal->paket_id),
+                'nama_paket' => set_value('nama_paket', $data_paket_personal->nama_paket),
                 'menit' => set_value('menit', $data_paket_personal->menit),
                 'harga' => set_value('harga', $data_paket_personal->harga),
             );
@@ -115,11 +116,14 @@ class Paket extends CI_Controller
     
     public function update_action() 
     {
+
         $id_paket = $this->input->post('paket_id', TRUE);
+
+        var_dump($id_paket);
 
         $message = '';
 
-        if($id_paket == 'loss') {
+        if($id_paket <= 1) {
             $this->_rules_loss();
 
             if ($this->form_validation->run() == FALSE) {
@@ -131,7 +135,7 @@ class Paket extends CI_Controller
                     'menit' => $this->input->post('menit',TRUE),
                 );
     
-                $this->Paket_model->update(0, $data);
+                $this->Paket_model->update($id_paket, $data);
                 $message = 'Paket Loss telah diupdate!';
             }
         } else {

@@ -166,7 +166,7 @@ class Meja extends CI_Controller
                     foreach ($getpaketlistinbilling as $q => $v) {
                         $menit_list[] = intval($v['menit']);
                     }
-
+                    
                     $minutestoadd = $paket->menit. ' Minutes';
         
                     $start_main = $getdatabilling->start;

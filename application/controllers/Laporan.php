@@ -48,6 +48,11 @@ class Laporan extends CI_Controller {
 
 	public function jumlah_menit($start, $end) {
 		$mulainya = new DateTime($start);
+
+		if($end == 'N/A') {
+			$end = date('Y-m-d H:i:s');
+		}
+
 		$e = new DateTime($end);
 		$diffseconds = $e->getTimestamp() - $mulainya->getTimestamp();
 		$hours = floor($diffseconds / 3600);
